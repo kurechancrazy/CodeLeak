@@ -1,0 +1,21 @@
+{
+  "feature_name": "gameplay-screen",
+  "display_name": "ゲームプレイ画面",
+  "project_description": "プレイヤーはハッカーとなり、AIが生成した一見正常に動いているが特定の条件下で異常な挙動を起こすプログラムをデバッグ（修正）するサスペンス要素のあるプログラミングパズルゲーム",
+  "language": "ja",
+  "ui_language": "en",
+  "created_at": "2026-06-12T00:00:00+09:00",
+  "updated_at": "2026-06-12T11:00:00+09:00",
+  "phase": "implementation",
+  "status": {
+    "requirements": "generated",
+    "design": "generated",
+    "tasks": "generated",
+    "implementation": "complete"
+  },
+  "approvals": {
+    "requirements": true,
+    "design": true,
+    "tasks": false
+  }
+}
