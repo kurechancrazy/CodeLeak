@@ -1,8 +1,8 @@
 ## MainMenu — タイトル画面（MVP プレースホルダー）
 extends Control
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
 
 
 func _ready() -> void:

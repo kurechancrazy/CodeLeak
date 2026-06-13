@@ -1,9 +1,9 @@
 ## InvestigationPanel — 調査ターミナル：フレーバーテキスト・質問・選択肢・ヒントを表示する
 extends PanelContainer
 
-const _COLOR_BG: Color = Color.html("#0a0a1a")
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_DIM: Color = Color.html("#555555")
+var _COLOR_BG: Color = Color.html("#0a0a1a")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_DIM: Color = Color.html("#555555")
 const _COLOR_FLASH_GREEN: Color = Color(0.0, 0.8, 0.2, 1.0)
 const _COLOR_FLASH_RED: Color = Color(0.8, 0.1, 0.1, 1.0)
 

@@ -1,7 +1,7 @@
 ## PauseMenu — ポーズ中に表示されるオーバーレイメニュー
 extends CanvasLayer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
 const _COLOR_BG: Color = Color(0.05, 0.05, 0.05, 0.92)
 const _COLOR_OVERLAY: Color = Color(0.0, 0.0, 0.0, 0.6)
 

@@ -1,13 +1,13 @@
 ## CodePanel — 疑似コードを行番号付きで表示し、行選択を管理する
 extends PanelContainer
 
-const _COLOR_BG: Color = Color.html("#0d0d0d")
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_LINE_NUM: Color = Color.html("#555555")
-const _COLOR_HOVER_BG: Color = Color.html("#1a1a2e")
-const _COLOR_SELECTED: Color = Color.html("#ffff00")
-const _COLOR_FLASH_GREEN: Color = Color.html("#00ff41")
-const _COLOR_FLASH_RED: Color = Color.html("#ff3333")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_LINE_NUM: Color = Color.html("#555555")
+var _COLOR_HOVER_BG: Color = Color.html("#1a1a2e")
+var _COLOR_SELECTED: Color = Color.html("#ffff00")
+var _COLOR_FLASH_GREEN: Color = Color.html("#00ff41")
+var _COLOR_FLASH_RED: Color = Color.html("#ff3333")
 
 var _scroll: ScrollContainer
 var _code_lines_container: VBoxContainer
@@ -38,7 +38,7 @@ func _build_styles() -> void:
 	add_theme_stylebox_override("panel", _style_panel)
 
 	_style_normal = StyleBoxFlat.new()
-	_style_normal.bg_color = Color(_COLOR_BG)
+	_style_normal.bg_color = _COLOR_BG
 	_style_normal.set_content_margin_all(4.0)
 
 	_style_hover = StyleBoxFlat.new()

@@ -1,9 +1,9 @@
 ## GameHUD — ゲームプレイ中の上部ステータスバー
 extends CanvasLayer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_DIM: Color = Color.html("#555555")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_DIM: Color = Color.html("#555555")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
 
 var _level_label: Label
 var _bug_type_label: Label

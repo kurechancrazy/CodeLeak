@@ -1,12 +1,11 @@
 ## GameScreen — ゲームプレイ画面のルート。CodePanel・InvestigationPanel・HUD・PauseMenu を統合する
 extends MarginContainer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
 
 var _secured_label: Label
 var _results_overlay: CanvasLayer
-var _split: HSplitContainer
 
 
 func _ready() -> void:
@@ -21,19 +20,21 @@ func _build_layout() -> void:
 	bg_style.bg_color = _COLOR_BG
 	add_theme_stylebox_override("panel", bg_style)
 
-	_split = HSplitContainer.new()
-	_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_split.draggable = false
-	add_child(_split)
+	var hbox := HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hbox.add_theme_constant_override("separation", 0)
+	add_child(hbox)
 
 	var code_panel: Node = preload("res://scenes/game/code_panel.tscn").instantiate()
-	code_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_split.add_child(code_panel)
+	(code_panel as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	(code_panel as Control).size_flags_stretch_ratio = 3.0
+	hbox.add_child(code_panel)
 
 	var inv_panel: Node = preload("res://scenes/game/investigation_panel.tscn").instantiate()
-	inv_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_split.add_child(inv_panel)
+	(inv_panel as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	(inv_panel as Control).size_flags_stretch_ratio = 2.0
+	hbox.add_child(inv_panel)
 
 	var hud: Node = preload("res://scenes/ui/game_hud.tscn").instantiate()
 	add_child(hud)
@@ -42,13 +43,6 @@ func _build_layout() -> void:
 	add_child(pause_menu)
 
 	_build_secured_overlay()
-
-	call_deferred("_apply_split_ratio")
-
-
-func _apply_split_ratio() -> void:
-	if _split != null:
-		_split.split_offset = int(get_viewport_rect().size.x * 0.6)
 
 
 func _build_secured_overlay() -> void:
