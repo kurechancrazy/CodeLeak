@@ -2,8 +2,8 @@
 ## ConfigFileをベースにしたシリアライズ層。機密データは別途暗号化を行うこと。
 extends Node
 
-const SAVE_PATH: String = "user://save_data.cfg"
-const SETTINGS_PATH: String = "user://settings.cfg"
+var SAVE_PATH: String = "user://save_data.cfg"
+var SETTINGS_PATH: String = "user://settings.cfg"
 
 var _save_config: ConfigFile = ConfigFile.new()
 var _settings_config: ConfigFile = ConfigFile.new()

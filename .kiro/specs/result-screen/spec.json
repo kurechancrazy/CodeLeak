@@ -1,0 +1,21 @@
+{
+  "feature_name": "result-screen",
+  "display_name": "リザルト画面",
+  "project_description": "レベルクリア後にスコア・ランク・タイム・ミス数を表示し、ハイスコア更新の演出を行うリザルト画面",
+  "language": "ja",
+  "ui_language": "en",
+  "created_at": "2026-06-14T00:00:00+09:00",
+  "updated_at": "2026-06-14T10:00:00+09:00",
+  "phase": "tasks-generated",
+  "status": {
+    "requirements": "generated",
+    "design": "generated",
+    "tasks": "generated",
+    "implementation": "pending"
+  },
+  "approvals": {
+    "requirements": true,
+    "design": true,
+    "tasks": false
+  }
+}

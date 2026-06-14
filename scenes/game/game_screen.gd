@@ -146,10 +146,24 @@ func _on_secured_sequence_done() -> void:
 	var final_score: int = ScoreCalc.calculate_final_score(
 		PuzzleManager.miss_count, PuzzleManager.elapsed_time, PuzzleManager.hints_used
 	)
+	var scores_json: String = SaveManager.get_value("progress", "scores", "{}")
+	var parsed: Variant = JSON.parse_string(scores_json)
+	var level_id: String = PuzzleManager.current_puzzle.level_id
+	var old_score: int = 0
+	if parsed is Dictionary and (parsed as Dictionary).has(level_id):
+		old_score = (parsed as Dictionary)[level_id] as int
+	var is_new_high_score: bool = final_score > old_score
+	GameManager.last_result = {
+		"score": final_score,
+		"miss_count": PuzzleManager.miss_count,
+		"elapsed_time": PuzzleManager.elapsed_time,
+		"hints_used": PuzzleManager.hints_used,
+		"is_new_high_score": is_new_high_score,
+	}
 	EventBus.puzzle_completed.emit(
 		final_score, PuzzleManager.miss_count, PuzzleManager.elapsed_time
 	)
-	EventBus.scene_change_requested.emit("res://scenes/ui/main_menu.tscn", "fade")
+	EventBus.scene_change_requested.emit("res://scenes/ui/result_screen.tscn", "fade")
 
 
 func _input(event: InputEvent) -> void:

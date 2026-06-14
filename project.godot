@@ -73,7 +73,7 @@ move_down={
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [rendering]
 

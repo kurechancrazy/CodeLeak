@@ -19,12 +19,20 @@ enum GameState {
 	LEVEL_SELECT,
 	ANIMATING,
 	LEVEL_CLEAR,
+	RESULT,
 	GAME_CLEAR,
 }
 
 var state: GameState = GameState.BOOT
 var score: int = 0
 var high_score: int = 0
+var last_result: Dictionary = {
+	"score": 0,
+	"miss_count": 0,
+	"elapsed_time": 0.0,
+	"hints_used": 0,
+	"is_new_high_score": false,
+}
 
 # 設定値（SaveManagerで永続化）
 var settings: Dictionary = {
