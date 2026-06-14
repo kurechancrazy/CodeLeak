@@ -75,6 +75,10 @@ move_down={
 
 enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://assets/i18n/translations.csv")
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

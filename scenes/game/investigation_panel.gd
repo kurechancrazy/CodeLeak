@@ -1,11 +1,11 @@
 ## InvestigationPanel — 調査ターミナル：フレーバーテキスト・質問・選択肢・ヒントを表示する
 extends PanelContainer
 
+const _COLOR_FLASH_GREEN: Color = Color(0.0, 0.8, 0.2, 1.0)
+const _COLOR_FLASH_RED: Color = Color(0.8, 0.1, 0.1, 1.0)
 var _COLOR_BG: Color = Color.html("#0a0a1a")
 var _COLOR_TEXT: Color = Color.html("#00ff41")
 var _COLOR_DIM: Color = Color.html("#555555")
-const _COLOR_FLASH_GREEN: Color = Color(0.0, 0.8, 0.2, 1.0)
-const _COLOR_FLASH_RED: Color = Color(0.8, 0.1, 0.1, 1.0)
 
 var _style_panel: StyleBoxFlat
 var _flavor_label: RichTextLabel
@@ -28,6 +28,7 @@ func _ready() -> void:
 	EventBus.hint_applied.connect(_on_hint_applied)
 	EventBus.level_cleared.connect(_on_level_cleared)
 	EventBus.level_restarted.connect(_on_level_restarted)
+	EventBus.settings_changed.connect(_on_settings_changed)
 
 
 func _build_styles() -> void:
@@ -87,7 +88,7 @@ func _build_layout() -> void:
 	vbox.add_child(hint_row)
 
 	_hint_button = Button.new()
-	_hint_button.text = "[HINT]"
+	_hint_button.text = tr("BTN_HINT")
 	_hint_button.flat = true
 	_hint_button.custom_minimum_size = Vector2(0, 40)
 	_hint_button.add_theme_color_override("font_color", _COLOR_TEXT)
@@ -177,7 +178,7 @@ func _show_feedback_and_animate_correct(explanation: String) -> void:
 		_COLOR_FLASH_GREEN,
 		0.3,
 		func() -> void:
-			_feedback_label.text = ">> PATCHED\n   %s" % explanation
+			_feedback_label.text = "%s\n   %s" % [tr("FEEDBACK_PATCHED"), explanation]
 			_feedback_label.visible = true
 			_choices_container.visible = false
 			_prompt_label.visible = false
@@ -191,7 +192,7 @@ func _show_feedback_and_animate_wrong() -> void:
 		_COLOR_FLASH_RED,
 		0.2,
 		func() -> void:
-			_feedback_label.text = ">> ACCESS DENIED"
+			_feedback_label.text = tr("FEEDBACK_DENIED")
 			_feedback_label.visible = true
 			_set_choices_interactive(true)
 			EventBus.game_state_change_requested.emit(GameManager.GameState.PLAYING)
@@ -267,6 +268,11 @@ func _input(event: InputEvent) -> void:
 			return
 
 
+func _on_settings_changed(key: String, _value: Variant) -> void:
+	if key == "language":
+		_hint_button.text = tr("BTN_HINT")
+
+
 func _exit_tree() -> void:
 	EventBus.puzzle_loaded.disconnect(_on_puzzle_loaded)
 	EventBus.line_selected.disconnect(_on_line_selected)
@@ -274,3 +280,5 @@ func _exit_tree() -> void:
 	EventBus.hint_applied.disconnect(_on_hint_applied)
 	EventBus.level_cleared.disconnect(_on_level_cleared)
 	EventBus.level_restarted.disconnect(_on_level_restarted)
+	if EventBus.settings_changed.is_connected(_on_settings_changed):
+		EventBus.settings_changed.disconnect(_on_settings_changed)

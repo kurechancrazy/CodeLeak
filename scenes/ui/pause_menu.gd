@@ -1,15 +1,21 @@
 ## PauseMenu — ポーズ中に表示されるオーバーレイメニュー
 extends CanvasLayer
 
-var _COLOR_TEXT: Color = Color.html("#00ff41")
 const _COLOR_BG: Color = Color(0.05, 0.05, 0.05, 0.92)
 const _COLOR_OVERLAY: Color = Color(0.0, 0.0, 0.0, 0.6)
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+
+var _title_label: Label
+var _resume_btn: Button
+var _restart_btn: Button
+var _main_menu_btn: Button
 
 
 func _ready() -> void:
 	_build_menu()
 	visible = false
 	EventBus.game_paused.connect(_on_game_paused)
+	EventBus.settings_changed.connect(_on_settings_changed)
 
 
 func _build_menu() -> void:
@@ -38,29 +44,42 @@ func _build_menu() -> void:
 	vbox.add_theme_constant_override("separation", 16)
 	panel.add_child(vbox)
 
-	var title := Label.new()
-	title.text = "// PAUSED"
-	title.add_theme_color_override("font_color", _COLOR_TEXT)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
+	_title_label = Label.new()
+	_title_label.add_theme_color_override("font_color", _COLOR_TEXT)
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_title_label)
 
 	var sep := HSeparator.new()
 	vbox.add_child(sep)
 
-	_add_menu_button(vbox, "[RESUME]", _on_resume_pressed)
-	_add_menu_button(vbox, "[RESTART LEVEL]", _on_restart_pressed)
-	_add_menu_button(vbox, "[MAIN MENU]", _on_main_menu_pressed)
+	_resume_btn = _add_menu_button(vbox, _on_resume_pressed)
+	_restart_btn = _add_menu_button(vbox, _on_restart_pressed)
+	_main_menu_btn = _add_menu_button(vbox, _on_main_menu_pressed)
+
+	_refresh_labels()
 
 
-func _add_menu_button(parent: VBoxContainer, label_text: String, callback: Callable) -> void:
+func _add_menu_button(parent: VBoxContainer, callback: Callable) -> Button:
 	var btn := Button.new()
-	btn.text = label_text
 	btn.flat = true
 	btn.custom_minimum_size = Vector2(240, 44)
 	btn.add_theme_color_override("font_color", _COLOR_TEXT)
 	btn.add_theme_color_override("font_hover_color", Color.WHITE)
 	btn.pressed.connect(callback)
 	parent.add_child(btn)
+	return btn
+
+
+func _refresh_labels() -> void:
+	_title_label.text = tr("PAUSE_TITLE")
+	_resume_btn.text = tr("BTN_RESUME")
+	_restart_btn.text = tr("BTN_RESTART_LEVEL")
+	_main_menu_btn.text = tr("BTN_MAIN_MENU")
+
+
+func _on_settings_changed(key: String, _value: Variant) -> void:
+	if key == "language":
+		_refresh_labels()
 
 
 func _on_game_paused(is_paused: bool) -> void:
@@ -83,3 +102,5 @@ func _on_main_menu_pressed() -> void:
 
 func _exit_tree() -> void:
 	EventBus.game_paused.disconnect(_on_game_paused)
+	if EventBus.settings_changed.is_connected(_on_settings_changed):
+		EventBus.settings_changed.disconnect(_on_settings_changed)

@@ -1,0 +1,36 @@
+keys,en,ja
+MAIN_SUBTITLE,[ debug the machine before it debugs you ],[ AIの嘘を見抜け ]
+BTN_PLAY,[ PLAY ],[ プレイ ]
+BTN_HOW_TO_PLAY,[ HOW TO PLAY ],[ 遊び方 ]
+BTN_QUIT,[ QUIT ],[ 終了 ]
+LANG_TOGGLE_TO_JA,[JA],[EN]
+HUD_SCORE_PREFIX,SCORE:,スコア:
+HUD_HINTS_PREFIX,HINTS:,ヒント:
+HUD_LEVEL_PREFIX,LEVEL,レベル
+BTN_HINT,[HINT],[ヒント]
+FEEDBACK_PATCHED,>> PATCHED,>> パッチ適用
+FEEDBACK_DENIED,>> ACCESS DENIED,>> アクセス拒否
+PAUSE_TITLE,// PAUSED,// 一時停止
+BTN_RESUME,[RESUME],[再開]
+BTN_RESTART_LEVEL,[RESTART LEVEL],[レベル再起動]
+BTN_MAIN_MENU,[MAIN MENU],[メインメニュー]
+RESULT_TITLE,// ANALYSIS COMPLETE,// 解析完了
+RESULT_SCORE_PREFIX,SCORE:,スコア:
+RESULT_TIME_PREFIX,TIME:,タイム:
+RESULT_MISS_PREFIX,MISS:,ミス:
+RESULT_HINTS_PREFIX,HINTS USED:,使用ヒント:
+RESULT_NEW_HIGH,>> NEW HIGH SCORE!,>> ハイスコア更新!
+BTN_RETRY,[RETRY],[リトライ]
+SYSTEM_SECURED,[SYSTEM SECURED],[システム確保]
+HTP_TITLE,// HOW TO PLAY,// 遊び方
+HTP_MISSION_TITLE,MISSION,ミッション
+HTP_MISSION,Analyze AI-generated code. Find the hidden malicious logic and patch it before it executes.,AIが生成したコードを解析せよ。隠された悪意ある処理を見つけ実行前に修正しろ。
+HTP_CODE_TITLE,CODE PANEL (LEFT),コードパネル（左）
+HTP_CODE,Read the code. Click a suspicious line to open the investigation panel.,コードを読み怪しい行をクリックして調査パネルを開け。
+HTP_INVEST_TITLE,INVESTIGATION PANEL (RIGHT),調査パネル（右）
+HTP_INVEST,Answer the question about the selected line. Press [A][B][C][D] or click.,選択行に関する質問に答えよ。[A][B][C][D]を押すかクリック。
+HTP_HINT_TITLE,HINTS,ヒント
+HTP_HINT,Press [HINT] to highlight a suspicious line. Limited uses per level.,[ヒント]で怪しい行をハイライト。レベルごとに使用回数制限あり。
+HTP_SCORE_TITLE,SCORING,スコア
+HTP_SCORE,Fast clear = time bonus. Wrong answers = score penalty.,素早いクリアでタイムボーナス。誤答はスコアペナルティ。
+BTN_CLOSE,[CLOSE],[閉じる]

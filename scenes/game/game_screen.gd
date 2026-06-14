@@ -132,7 +132,7 @@ func _on_level_cleared() -> void:
 func _play_secured_sequence() -> void:
 	_results_overlay.visible = true
 	_secured_label.text = ""
-	var full_text: String = "[SYSTEM SECURED]"
+	var full_text: String = tr("SYSTEM_SECURED")
 	var tween: Tween = create_tween()
 	for i: int in range(full_text.length() + 1):
 		var chars: int = i

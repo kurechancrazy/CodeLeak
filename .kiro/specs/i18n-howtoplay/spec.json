@@ -1,0 +1,21 @@
+{
+  "feature_name": "i18n-howtoplay",
+  "display_name": "英語・日本語多言語対応と遊び方説明",
+  "project_description": "英語・日本語多言語対応と遊び方説明",
+  "language": "en",
+  "ui_language": "en",
+  "created_at": "2026-06-14T00:00:00+09:00",
+  "updated_at": "2026-06-14T10:00:00+09:00",
+  "phase": "implementation-complete",
+  "status": {
+    "requirements": "generated",
+    "design": "generated",
+    "tasks": "generated",
+    "implementation": "complete"
+  },
+  "approvals": {
+    "requirements": true,
+    "design": true,
+    "tasks": true
+  }
+}

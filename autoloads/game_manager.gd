@@ -40,7 +40,7 @@ var settings: Dictionary = {
 	"bgm_volume": 0.8,
 	"sfx_volume": 1.0,
 	"fullscreen": false,
-	"language": "ja",
+	"language": "en",
 }
 
 
@@ -102,6 +102,8 @@ func _on_game_paused(is_paused: bool) -> void:
 
 func _on_settings_changed(key: String, value: Variant) -> void:
 	settings[key] = value
+	if key == "language":
+		TranslationServer.set_locale(str(value))
 
 
 func _on_game_state_change_requested(new_state: int) -> void:

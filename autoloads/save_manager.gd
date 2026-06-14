@@ -66,6 +66,7 @@ func _load_settings() -> void:
 	for key: String in GameManager.settings:
 		if _settings_config.has_section_key("settings", key):
 			GameManager.settings[key] = _settings_config.get_value("settings", key)
+	TranslationServer.set_locale(str(GameManager.settings["language"]))
 
 
 # --- 汎用データアクセス ---

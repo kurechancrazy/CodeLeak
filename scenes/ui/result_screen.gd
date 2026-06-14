@@ -18,6 +18,8 @@ var _rank_label: Label
 var _score_label: Label
 var _new_high_label: Label
 var _buttons: HBoxContainer
+var _retry_btn: Button
+var _main_menu_btn: Button
 
 var _title_label: Label
 var _level_label: Label
@@ -34,6 +36,7 @@ func _ready() -> void:
 	_build_layout()
 	_apply_styles()
 	EventBus.game_state_change_requested.emit(GameManager.GameState.RESULT)
+	EventBus.settings_changed.connect(_on_settings_changed)
 	_play_intro_sequence()
 
 
@@ -58,7 +61,6 @@ func _build_layout() -> void:
 	center.add_child(vbox)
 
 	_title_label = Label.new()
-	_title_label.text = "// ANALYSIS COMPLETE"
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.visible = false
 	vbox.add_child(_title_label)
@@ -92,27 +94,22 @@ func _build_layout() -> void:
 	vbox.add_child(_rank_label)
 
 	_score_label = Label.new()
-	_score_label.text = "SCORE: %d" % _result_score
 	_score_label.visible = false
 	vbox.add_child(_score_label)
 
 	_time_label = Label.new()
-	_time_label.text = "TIME:  %s" % _format_time(_result_time)
 	_time_label.visible = false
 	vbox.add_child(_time_label)
 
 	_miss_label = Label.new()
-	_miss_label.text = "MISS:  %d" % _result_miss
 	_miss_label.visible = false
 	vbox.add_child(_miss_label)
 
 	_hints_label = Label.new()
-	_hints_label.text = "HINTS USED: %d" % _result_hints
 	_hints_label.visible = false
 	vbox.add_child(_hints_label)
 
 	_new_high_label = Label.new()
-	_new_high_label.text = ">> NEW HIGH SCORE!"
 	_new_high_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_new_high_label.visible = false
 	vbox.add_child(_new_high_label)
@@ -126,19 +123,17 @@ func _build_layout() -> void:
 	_buttons.visible = false
 	vbox.add_child(_buttons)
 
-	var retry_btn := Button.new()
-	retry_btn.text = "[RETRY]"
-	retry_btn.flat = true
-	retry_btn.custom_minimum_size = Vector2(160, 44)
-	retry_btn.pressed.connect(_on_retry_pressed)
-	_buttons.add_child(retry_btn)
+	_retry_btn = Button.new()
+	_retry_btn.flat = true
+	_retry_btn.custom_minimum_size = Vector2(160, 44)
+	_retry_btn.pressed.connect(_on_retry_pressed)
+	_buttons.add_child(_retry_btn)
 
-	var main_menu_btn := Button.new()
-	main_menu_btn.text = "[MAIN MENU]"
-	main_menu_btn.flat = true
-	main_menu_btn.custom_minimum_size = Vector2(160, 44)
-	main_menu_btn.pressed.connect(_on_main_menu_pressed)
-	_buttons.add_child(main_menu_btn)
+	_main_menu_btn = Button.new()
+	_main_menu_btn.flat = true
+	_main_menu_btn.custom_minimum_size = Vector2(160, 44)
+	_main_menu_btn.pressed.connect(_on_main_menu_pressed)
+	_buttons.add_child(_main_menu_btn)
 
 	var bg := ColorRect.new()
 	bg.color = _COLOR_BG
@@ -162,8 +157,10 @@ func _build_layout() -> void:
 		_score_label.add_theme_color_override("font_color", _COLOR_GOLD)
 		_new_high_label.add_theme_color_override("font_color", _COLOR_GOLD)
 
-	_apply_button_style(retry_btn, mono_font_ref)
-	_apply_button_style(main_menu_btn, mono_font_ref)
+	_apply_button_style(_retry_btn, mono_font_ref)
+	_apply_button_style(_main_menu_btn, mono_font_ref)
+
+	_refresh_labels()
 
 
 func _make_mono_font() -> SystemFont:
@@ -190,6 +187,22 @@ func _apply_styles() -> void:
 	var bg_style := StyleBoxFlat.new()
 	bg_style.bg_color = _COLOR_BG
 	add_theme_stylebox_override("panel", bg_style)
+
+
+func _refresh_labels() -> void:
+	_title_label.text = tr("RESULT_TITLE")
+	_score_label.text = "%s %d" % [tr("RESULT_SCORE_PREFIX"), _result_score]
+	_time_label.text = "%s %s" % [tr("RESULT_TIME_PREFIX"), _format_time(_result_time)]
+	_miss_label.text = "%s %d" % [tr("RESULT_MISS_PREFIX"), _result_miss]
+	_hints_label.text = "%s %d" % [tr("RESULT_HINTS_PREFIX"), _result_hints]
+	_new_high_label.text = tr("RESULT_NEW_HIGH")
+	_retry_btn.text = tr("BTN_RETRY")
+	_main_menu_btn.text = tr("BTN_MAIN_MENU")
+
+
+func _on_settings_changed(key: String, _value: Variant) -> void:
+	if key == "language":
+		_refresh_labels()
 
 
 func _play_intro_sequence() -> void:
@@ -251,3 +264,8 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel"):
 		_on_main_menu_pressed()
 		get_viewport().set_input_as_handled()
+
+
+func _exit_tree() -> void:
+	if EventBus.settings_changed.is_connected(_on_settings_changed):
+		EventBus.settings_changed.disconnect(_on_settings_changed)

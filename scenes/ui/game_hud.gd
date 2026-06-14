@@ -12,12 +12,16 @@ var _score_label: Label
 var _hints_label: Label
 var _pause_button: Button
 
+var _current_score: int = 1000
+var _current_hints_bars: String = "|||"
+
 
 func _ready() -> void:
 	_build_hud()
 	EventBus.puzzle_loaded.connect(_on_puzzle_loaded)
 	EventBus.hint_applied.connect(_on_hint_applied)
 	EventBus.answer_submitted.connect(_on_answer_submitted)
+	EventBus.settings_changed.connect(_on_settings_changed)
 
 
 func _process(_delta: float) -> void:
@@ -36,7 +40,7 @@ func _build_hud() -> void:
 	hbox.add_theme_constant_override("separation", 20)
 	add_child(hbox)
 
-	_level_label = _make_label("LEVEL - / -")
+	_level_label = _make_label("")
 	_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(_level_label)
 
@@ -46,10 +50,10 @@ func _build_hud() -> void:
 	_timer_label = _make_label("00:00")
 	hbox.add_child(_timer_label)
 
-	_score_label = _make_label("SCORE: 1000")
+	_score_label = _make_label("")
 	hbox.add_child(_score_label)
 
-	_hints_label = _make_label("HINTS: |||")
+	_hints_label = _make_label("")
 	hbox.add_child(_hints_label)
 
 	_pause_button = Button.new()
@@ -60,6 +64,8 @@ func _build_hud() -> void:
 	_pause_button.pressed.connect(_on_pause_pressed)
 	hbox.add_child(_pause_button)
 
+	_refresh_labels()
+
 
 func _make_label(text_value: String) -> Label:
 	var label := Label.new()
@@ -68,12 +74,20 @@ func _make_label(text_value: String) -> Label:
 	return label
 
 
+func _refresh_labels() -> void:
+	_level_label.text = "%s - / -" % tr("HUD_LEVEL_PREFIX")
+	_score_label.text = "%s %d" % [tr("HUD_SCORE_PREFIX"), _current_score]
+	_hints_label.text = "%s %s" % [tr("HUD_HINTS_PREFIX"), _current_hints_bars]
+
+
 func _on_puzzle_loaded(puzzle: PuzzleData) -> void:
-	_level_label.text = "LEVEL 1 / 1"
+	_current_score = 1000
+	_current_hints_bars = "|||"
+	_level_label.text = "%s 1 / 1" % tr("HUD_LEVEL_PREFIX")
 	_bug_type_label.text = "[%s]" % puzzle.bug_type
 	_timer_label.text = "00:00"
-	_score_label.text = "SCORE: 1000"
-	_hints_label.text = "HINTS: |||"
+	_score_label.text = "%s %d" % [tr("HUD_SCORE_PREFIX"), _current_score]
+	_hints_label.text = "%s %s" % [tr("HUD_HINTS_PREFIX"), _current_hints_bars]
 
 
 func _on_hint_applied(_line_index: int) -> void:
@@ -83,7 +97,8 @@ func _on_hint_applied(_line_index: int) -> void:
 		bars += "|"
 	if bars.is_empty():
 		bars = "---"
-	_hints_label.text = "HINTS: " + bars
+	_current_hints_bars = bars
+	_hints_label.text = "%s %s" % [tr("HUD_HINTS_PREFIX"), _current_hints_bars]
 
 
 func _on_answer_submitted(correct: bool, _explanation: String) -> void:
@@ -91,7 +106,13 @@ func _on_answer_submitted(correct: bool, _explanation: String) -> void:
 		var score: int = ScoreCalc.calculate_final_score(
 			PuzzleManager.miss_count, PuzzleManager.elapsed_time, PuzzleManager.hints_used
 		)
-		_score_label.text = "SCORE: %d" % score
+		_current_score = score
+		_score_label.text = "%s %d" % [tr("HUD_SCORE_PREFIX"), _current_score]
+
+
+func _on_settings_changed(key: String, _value: Variant) -> void:
+	if key == "language":
+		_refresh_labels()
 
 
 func _on_pause_pressed() -> void:
@@ -102,3 +123,5 @@ func _exit_tree() -> void:
 	EventBus.puzzle_loaded.disconnect(_on_puzzle_loaded)
 	EventBus.hint_applied.disconnect(_on_hint_applied)
 	EventBus.answer_submitted.disconnect(_on_answer_submitted)
+	if EventBus.settings_changed.is_connected(_on_settings_changed):
+		EventBus.settings_changed.disconnect(_on_settings_changed)
