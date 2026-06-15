@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CaseManifest" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/case_manifest.gd" id="1_manifest"]
+[ext_resource type="Resource" path="res://resources/cases/case_001.tres" id="2_case001"]
+
+[resource]
+script = ExtResource("1_manifest")
+cases = [ExtResource("2_case001")]

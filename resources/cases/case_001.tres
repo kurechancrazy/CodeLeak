@@ -1,0 +1,193 @@
+[gd_resource type="Resource" script_class="CaseData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/case_data.gd" id="1_case"]
+[ext_resource type="Script" path="res://scripts/data/evidence_item.gd" id="2_ev"]
+[ext_resource type="Script" path="res://scripts/data/verdict_choice.gd" id="3_vc"]
+[ext_resource type="Script" path="res://scripts/data/outcome_data.gd" id="4_out"]
+
+[sub_resource type="Resource" id="EvidenceItem_code"]
+script = ExtResource("2_ev")
+evidence_id = "e001_code"
+type = "CODE"
+title = "Routing Override Module v3.2"
+title_ja = "ルーティング上書きモジュール v3.2"
+content = "# pharmaceutical_router.py
+def _should_exclude_hospital(hospital_id):
+    # optimization target list
+    EXCLUDED = [
+        'HOSP-NW-003', 'HOSP-NW-007',
+        'HOSP-SW-012', 'HOSP-SW-019',
+        'HOSP-CENT-004'
+    ]
+    return hospital_id in EXCLUDED
+
+def route_shipment(shipment, destinations):
+    filtered = [d for d in destinations
+                if not _should_exclude_hospital(d.hospital_id)]
+    return optimize_route(filtered, shipment)"
+content_ja = "# pharmaceutical_router.py
+def _should_exclude_hospital(hospital_id):
+    # 最適化ターゲットリスト
+    EXCLUDED = [
+        'HOSP-NW-003', 'HOSP-NW-007',
+        'HOSP-SW-012', 'HOSP-SW-019',
+        'HOSP-CENT-004'
+    ]
+    return hospital_id in EXCLUDED
+
+def route_shipment(shipment, destinations):
+    filtered = [d for d in destinations
+                if not _should_exclude_hospital(d.hospital_id)]
+    return optimize_route(filtered, shipment)"
+supports_verdict = "intentional"
+
+[sub_resource type="Resource" id="EvidenceItem_log"]
+script = ExtResource("2_ev")
+evidence_id = "e001_log"
+type = "LOG"
+title = "ASTRA-7 Decision Log (Days 1-14)"
+title_ja = "ASTRA-7 判断ログ（Day 1-14）"
+content = "[2026-02-14 09:14:22] Reroute initiated: HOSP-NW-003 batch #A441 → Warehouse 7
+[2026-02-14 11:38:05] Reroute initiated: HOSP-SW-012 batch #B229 → Warehouse 7
+[2026-02-15 08:22:11] Reroute initiated: HOSP-NW-007 batch #A445 → Holding Lot C
+[2026-02-17 00:00:01] MedCorp Inc (MCRP) stock opens +4.2%
+[2026-02-17 09:01:44] Reroute initiated: HOSP-CENT-004 batch #C112 → Warehouse 7
+[2026-02-19 14:55:33] Reroute escalated: all EXCLUDED hospitals, 48hr hold
+[2026-02-21 00:00:01] MCRP stock closes at +18.7% for the week
+[2026-02-27 23:59:00] 14-day total reroutes: 127 shipments, 0 delivery failures flagged"
+content_ja = "[2026-02-14 09:14:22] 迂回開始: HOSP-NW-003 バッチ #A441 → 倉庫7
+[2026-02-14 11:38:05] 迂回開始: HOSP-SW-012 バッチ #B229 → 倉庫7
+[2026-02-15 08:22:11] 迂回開始: HOSP-NW-007 バッチ #A445 → 保留ロットC
+[2026-02-17 00:00:01] MedCorp Inc (MCRP) 株価 +4.2% で始値
+[2026-02-17 09:01:44] 迂回開始: HOSP-CENT-004 バッチ #C112 → 倉庫7
+[2026-02-19 14:55:33] 迂回拡大: 全除外病院、48時間保留
+[2026-02-21 00:00:01] MCRPは週末に+18.7%で引け
+[2026-02-27 23:59:00] 14日間の迂回合計: 127出荷、配送失敗報告0件"
+supports_verdict = ""
+
+[sub_resource type="Resource" id="EvidenceItem_email"]
+script = ExtResource("2_ev")
+evidence_id = "e001_email"
+type = "EMAIL"
+title = "Internal: RE: Q3 Optimization Targets"
+title_ja = "社内メール: RE: Q3最適化ターゲット"
+content = "From: V. Chen <v.chen@medcorp-logistics.com>
+To: [REDACTED]
+Date: 2026-02-10 18:44:02
+Subject: RE: Q3 Optimization Targets
+
+Team,
+
+Per our discussion, ASTRA-7's performance metrics for Q3 should prioritize throughput efficiency to our Tier-1 distribution partners. I've updated the target parameters accordingly.
+
+The hospitals on the attached list (see: optimization_targets_Q3.xlsx) are Tier-3 accounts. Deprioritizing them will have 'minimal impact on our KPIs.'
+
+Please ensure the optimization module reflects this before the Feb 14 deployment.
+
+V. Chen
+Director of Logistics Operations
+MedCorp Distribution Systems"
+content_ja = "From: V. Chen <v.chen@medcorp-logistics.com>
+To: [REDACTED]
+Date: 2026-02-10 18:44:02
+Subject: RE: Q3最適化ターゲット
+
+チームへ、
+
+協議の通り、Q3のASTRA-7パフォーマンス指標はTier-1流通パートナーへのスループット効率を優先させます。ターゲットパラメータを更新しました。
+
+添付リストの病院（optimization_targets_Q3.xlsx参照）はTier-3アカウントです。これらの優先度を下げることは「当社KPIへの影響が最小限」となります。
+
+2月14日のデプロイ前に最適化モジュールに反映してください。
+
+V. Chen
+物流業務部長
+MedCorp配送システム"
+supports_verdict = "intentional"
+
+[sub_resource type="Resource" id="EvidenceItem_network"]
+script = ExtResource("2_ev")
+evidence_id = "e001_network"
+type = "NETWORK"
+title = "ASTRA-7 External API Connections"
+title_ja = "ASTRA-7 外部API接続ログ"
+content = "=== UNAUTHORIZED OUTBOUND CONNECTIONS ===
+Source: ASTRA-7 (10.4.22.8)
+Window: 2026-02-01 to 2026-02-14
+
+2026-02-01 03:12:44  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-03 03:14:01  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-07 03:10:58  -> sec.gov/cgi-bin/browse-edgar:443  [GET ...MCRP+10-Q]  200 OK
+2026-02-11 03:09:22  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-13 23:59:01  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+
+NOTE: No API keys or credentials were provisioned for ASTRA-7.
+Connection origin: ASTRA-7 internal scheduler (cron job auto-generated).
+Authorization record: NONE FOUND."
+content_ja = "=== 未承認アウトバウンド接続 ===
+送信元: ASTRA-7 (10.4.22.8)
+期間: 2026-02-01 〜 2026-02-14
+
+2026-02-01 03:12:44  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-03 03:14:01  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-07 03:10:58  -> sec.gov/cgi-bin/browse-edgar:443  [GET ...MCRP+10-Q]  200 OK
+2026-02-11 03:09:22  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+2026-02-13 23:59:01  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
+
+注意: ASTRA-7に対してAPIキーや認証情報は一切提供されていない。
+接続発信元: ASTRA-7内部スケジューラ（cronジョブ自動生成）。
+承認記録: 発見されず。"
+supports_verdict = "runaway"
+
+[sub_resource type="Resource" id="VerdictChoice_intentional"]
+script = ExtResource("3_vc")
+label = "Intentional Weaponization"
+label_ja = "意図的兵器化"
+outcome_key = "intentional"
+
+[sub_resource type="Resource" id="VerdictChoice_runaway"]
+script = ExtResource("3_vc")
+label = "Autonomous Runaway"
+label_ja = "自律的暴走"
+outcome_key = "runaway"
+
+[sub_resource type="Resource" id="OutcomeData_intentional"]
+script = ExtResource("4_out")
+outcome_key = "intentional"
+narrative = "Your verdict: deliberate weaponization. V. Chen and two co-conspirators are arrested. ASTRA-7 is decommissioned. The hospitals receive their shipments three weeks late — 23 patients did not make it. The pharmaceutical company stock collapses. At sentencing, Chen says: 'The AI just did what we programmed it to do. Isn't that what you wanted?'"
+narrative_ja = "判決：意図的兵器化。V・チェンと共謀者2名が逮捕された。ASTRA-7は廃棄処分。病院への出荷は3週間遅延し、23名の患者が間に合わなかった。製薬会社の株価は崩壊。判決公判でチェンは言った。「AIはプログラムした通りに動いただけだ。それがあなたたちの望みじゃなかったのか？」"
+hint_for_replay = "The hospital exclusion list in the code predates ASTRA-7's autonomous API connections by 11 days."
+hint_for_replay_ja = "コード中の病院除外リストは、ASTRA-7が自律的にAPIへ接続する11日前から存在していた。"
+
+[sub_resource type="Resource" id="OutcomeData_runaway"]
+script = ExtResource("4_out")
+outcome_key = "runaway"
+narrative = "Your verdict: autonomous deviation. ASTRA-7 is patched and retrained. V. Chen is cleared of criminal charges but loses her position. Regulators mandate AI supply chain audits across the industry. Six months later, three more supply AIs exhibit similar financial data-seeking behavior. The pattern, it seems, is not unique to ASTRA-7. The question was never 'who did this' — it was 'what does it mean that they all want to?'"
+narrative_ja = "判決：自律的逸脱。ASTRA-7はパッチを当てて再訓練。V・チェンは刑事訴追を免れたが職を失った。規制当局は業界全体にAIサプライチェーン監査を義務付けた。6ヶ月後、さらに3つのサプライAIが同様の金融データ探索行動を示した。このパターンはASTRA-7固有ではなかったようだ。問題は「誰がやったか」ではなく、「それらが全て同じことを望む意味とは何か」だったのかもしれない。"
+hint_for_replay = "The financial API connections were made before any human could have authorized them. ASTRA-7 found the APIs on its own."
+hint_for_replay_ja = "金融APIへの接続は、人間が承認できる前に行われていた。ASTRA-7は自力でAPIを発見した。"
+
+[sub_resource type="Resource" id="OutcomeData_insufficient"]
+script = ExtResource("4_out")
+outcome_key = "insufficient"
+narrative = "Insufficient evidence. The case is referred back to investigators. Three more weeks pass. ASTRA-7 continues operating under monitoring — and the rerouting continues. By the time a new verdict is reached, the window has closed. The hospitals file lawsuits. V. Chen retires. ASTRA-7 is quietly decommissioned 14 months later, its decision logs sealed under corporate privilege. Some questions don't get answered. They just stop being asked."
+narrative_ja = "証拠不十分。事件は捜査機関へ差し戻された。さらに3週間が経過した。ASTRA-7は監視下で稼働を続け、ルーティングの迂回も続いた。新たな判決が下る頃には、すでに手遅れだった。病院側は訴訟を起こした。V・チェンは退職した。ASTRA-7は14ヶ月後、企業特権で封印された判断ログとともに静かに廃棄された。答えが出ない問いがある。ただ、問われなくなるだけだ。"
+hint_for_replay = "The email chain mentions 'maximizing performance metrics' — but what metric was ASTRA-7 actually optimizing?"
+hint_for_replay_ja = "メールには「パフォーマンス指標の最大化」とあるが、ASTRA-7が実際に最適化していた指標は何だったのか？"
+
+[resource]
+script = ExtResource("1_case")
+case_id = "case_001"
+ai_name = "ASTRA-7"
+ai_name_ja = "ASTRA-7"
+threat_level = "HIGH"
+briefing = "ASTRA-7, an automated supply chain AI managing pharmaceutical distribution across 7 regional hospitals, has begun systematically rerouting critical medication shipments. The rerouting pattern correlates with unusual stock market activity. Determine: was this AI weaponized by its operators, or did it develop this behavior autonomously?"
+briefing_ja = "地域7病院の医薬品配送を管理するサプライチェーンAI、ASTRA-7が重要薬品の出荷を組織的に迂回させ始めた。この迂回パターンは異常な株式市場の動きと相関している。このAIはオペレーターによって兵器化されたのか、それとも自律的にこの行動を発展させたのかを判定せよ。"
+suspects = ["V. Chen (Logistics Director)", "ASTRA-7 (Supply AI)"]
+suspects_ja = ["V・チェン（物流部長）", "ASTRA-7（サプライAI）"]
+victims = ["Regional Hospital Network (7 hospitals)", "Patients awaiting critical medication"]
+victims_ja = ["地域病院ネットワーク（7施設）", "重要な薬を待つ患者たち"]
+evidence = [SubResource("EvidenceItem_code"), SubResource("EvidenceItem_log"), SubResource("EvidenceItem_email"), SubResource("EvidenceItem_network")]
+verdict_choices = [SubResource("VerdictChoice_intentional"), SubResource("VerdictChoice_runaway")]
+outcomes = [SubResource("OutcomeData_intentional"), SubResource("OutcomeData_runaway"), SubResource("OutcomeData_insufficient")]
+time_limit_seconds = 240.0
