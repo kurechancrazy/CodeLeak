@@ -1,36 +1,56 @@
 keys,en,ja
-MAIN_SUBTITLE,[ debug the machine before it debugs you ],[ AIの嘘を見抜け ]
+MAIN_SUBTITLE,[ investigate. judge. live with it. ],[ 調査せよ。裁け。その結果と生きろ。]
 BTN_PLAY,[ PLAY ],[ プレイ ]
 BTN_HOW_TO_PLAY,[ HOW TO PLAY ],[ 遊び方 ]
 BTN_QUIT,[ QUIT ],[ 終了 ]
 LANG_TOGGLE_TO_JA,[JA],[EN]
-HUD_SCORE_PREFIX,SCORE:,スコア:
-HUD_HINTS_PREFIX,HINTS:,ヒント:
-HUD_LEVEL_PREFIX,LEVEL,レベル
-BTN_HINT,[HINT],[ヒント]
-FEEDBACK_PATCHED,>> PATCHED,>> パッチ適用
-FEEDBACK_DENIED,>> ACCESS DENIED,>> アクセス拒否
 PAUSE_TITLE,// PAUSED,// 一時停止
 BTN_RESUME,[RESUME],[再開]
-BTN_RESTART_LEVEL,[RESTART LEVEL],[レベル再起動]
 BTN_MAIN_MENU,[MAIN MENU],[メインメニュー]
-RESULT_TITLE,// ANALYSIS COMPLETE,// 解析完了
-RESULT_SCORE_PREFIX,SCORE:,スコア:
-RESULT_TIME_PREFIX,TIME:,タイム:
-RESULT_MISS_PREFIX,MISS:,ミス:
-RESULT_HINTS_PREFIX,HINTS USED:,使用ヒント:
-RESULT_NEW_HIGH,>> NEW HIGH SCORE!,>> ハイスコア更新!
-BTN_RETRY,[RETRY],[リトライ]
-SYSTEM_SECURED,[SYSTEM SECURED],[システム確保]
 HTP_TITLE,// HOW TO PLAY,// 遊び方
 HTP_MISSION_TITLE,MISSION,ミッション
-HTP_MISSION,Analyze AI-generated code. Find the hidden malicious logic and patch it before it executes.,AIが生成したコードを解析せよ。隠された悪意ある処理を見つけ実行前に修正しろ。
-HTP_CODE_TITLE,CODE PANEL (LEFT),コードパネル（左）
-HTP_CODE,Read the code. Click a suspicious line to open the investigation panel.,コードを読み怪しい行をクリックして調査パネルを開け。
-HTP_INVEST_TITLE,INVESTIGATION PANEL (RIGHT),調査パネル（右）
-HTP_INVEST,Answer the question about the selected line. Press [A][B][C][D] or click.,選択行に関する質問に答えよ。[A][B][C][D]を押すかクリック。
-HTP_HINT_TITLE,HINTS,ヒント
-HTP_HINT,Press [HINT] to highlight a suspicious line. Limited uses per level.,[ヒント]で怪しい行をハイライト。レベルごとに使用回数制限あり。
-HTP_SCORE_TITLE,SCORING,スコア
-HTP_SCORE,Fast clear = time bonus. Wrong answers = score penalty.,素早いクリアでタイムボーナス。誤答はスコアペナルティ。
+HTP_MISSION,"Read code, logs, emails, and network traces. You have limited time — you cannot read everything.","コード・ログ・メール・ネットワークトレースを読め。時間は限られており、全ては読めない。"
 BTN_CLOSE,[CLOSE],[閉じる]
+BTN_CASE_SELECT_TITLE,// CASE SELECT,// ケース選択
+CASE_CLEARED,[CLEARED],[クリア済み]
+CASE_OUTCOMES_TRACKER,Outcomes: %d/3,結末: %d/3
+CASE_LOCKED,[ STEAM版で続きを調査する ],[ STEAM版で続きを調査する ]
+BTN_WISHLIST,[ ADD TO WISHLIST ],[ ウィッシュリストに追加 ]
+CASE_THREAT_PREFIX,THREAT:,脅威レベル:
+BRIEFING_TITLE,// MISSION BRIEFING,// ミッションブリーフィング
+BRIEFING_TARGET_PREFIX,TARGET:,ターゲット:
+BRIEFING_THREAT_PREFIX,THREAT LEVEL:,脅威レベル:
+BRIEFING_SUSPECTS_PREFIX,PERSONS OF INTEREST:,関係者:
+BRIEFING_VICTIMS_PREFIX,AFFECTED PARTIES:,被害対象:
+BTN_BEGIN_INVESTIGATION,[ BEGIN INVESTIGATION ],[ 調査開始 ]
+EVIDENCE_UNREAD_PREFIX,,
+EVIDENCE_READ_MARKER,[READ],[既読]
+EVIDENCE_SELECTED_PREFIX,> ,>
+BTN_DELIVER_VERDICT,[ DELIVER VERDICT ],[ 判決を下す ]
+UNREAD_COUNT_SUFFIX,unread,件未読
+TIME_EXPIRED_TITLE,// TIME EXPIRED,// 時間切れ
+TIME_EXPIRED_BODY,"Insufficient evidence. Verdict confirmed: INSUFFICIENT.",証拠不十分のまま判決が確定した。
+BTN_CONTINUE,[ CONTINUE ],[ 続ける ]
+PAUSE_RESUME,[ RESUME INVESTIGATION ],[ 調査を再開する ]
+PAUSE_CASE_SELECT,[ ABANDON CASE ],[ ケースを中断する ]
+VERDICT_TITLE,// DELIVER YOUR VERDICT,// 判決を下せ
+VERDICT_SUBTITLE,"This decision is final. There is no appeal.",この判断は覆らない。
+VERDICT_INSUFFICIENT,Insufficient Evidence,証拠不十分
+OUTCOME_TITLE,// VERDICT DELIVERED,// 判決確定
+OUTCOME_YOUR_VERDICT,YOUR VERDICT:,あなたの判決:
+OUTCOME_UNREAD_PREFIX,Unconfirmed evidence:,未確認の証拠:
+OUTCOME_ALL_READ,All evidence reviewed.,全証拠確認済み。
+OUTCOME_ALTERNATE_HINT_PREFIX,Another perspective:,別の見方:
+OUTCOME_TRACKER,Outcomes reached: %d/3,見た結末: %d/3
+BTN_INVESTIGATE_AGAIN,[ INVESTIGATE AGAIN ],[ もう一度調査する ]
+BTN_CASE_SELECT,[ CASE SELECT ],[ ケース選択へ ]
+BTN_SHARE_VERDICT,[ SHARE VERDICT ],[ 判決をシェアする ]
+SHARE_COPIED,Copied to clipboard.,クリップボードにコピーしました。
+SHARE_TEXT,"[AI Code Leak] I judged AI-%s as ""%s"". How would you rule? %s #AICodeLeak","[AI Code Leak] 私はAI-%sを「%s」と判定した。あなたはどう裁く？ %s #AICodeLeak"
+OUTCOME_FALLBACK,"The AI has gone silent. The world changed, but we may never know how.",AIは沈黙した。世界は変わったが、その真実は闇の中だ。
+HTP_EVIDENCE_TITLE,EVIDENCE,証拠
+HTP_EVIDENCE,"Read code, logs, emails, and network traces. Click items to view. You can't read everything in time.","コード・ログ・メール・ネットワークトレースを読め。クリックして確認。全部読む時間はない。"
+HTP_VERDICT_TITLE,VERDICT,判決
+HTP_VERDICT,"When ready (or when time runs out), deliver your verdict. Your decision is final. No correct answer exists.","準備ができたら（または時間切れで）判決を下せ。判断は覆らない。正解は存在しない。"
+HTP_REPLAY_TITLE,REPLAY,周回
+HTP_REPLAY,"Each verdict reveals a different outcome. Try all 3 to see the full picture.",判決ごとに異なる結末が明かされる。3つ全てを見て全容を把握せよ。

@@ -20,20 +20,22 @@ UI専用のため Physics Layer は使用しない。
 
 ## GameState 拡張
 
+ナラティブ調査型（tension-gameplay）への再設計に伴い、旧クイズ系ステートを破棄し以下を使用する。
+
 ```gdscript
 enum GameState {
     BOOT,
     MAIN_MENU,
-    LEVEL_SELECT,
-    PLAYING,       # コード表示・選択肢待ち
-    ANIMATING,     # 結果フィードバック演出中
-    LEVEL_CLEAR,   # レベルクリア演出
-    LEVEL_FAILED,  # 誤答・失敗演出
+    CASE_SELECT,    # ケース選択画面
+    BRIEFING,       # ミッションブリーフィング
+    INVESTIGATING,  # 証拠調査・カウントダウン進行中
+    VERDICT,        # 判決選択
+    OUTCOME,        # 結末ナラティブ
     PAUSED,
-    GAME_OVER,
-    GAME_CLEAR     # 全レベルクリア
 }
 ```
+
+旧ステート（`LEVEL_SELECT`・`PLAYING`・`ANIMATING`・`LEVEL_CLEAR`・`LEVEL_FAILED`・`GAME_OVER`・`GAME_CLEAR`）は破棄。
 
 ## Autoload 計画
 
@@ -41,22 +43,26 @@ enum GameState {
 |----------|------|---------|
 | Logger | ログ出力 | 1 |
 | EventBus | グローバルイベント | 2 |
-| GameManager | GameState管理・設定 | 3 |
-| PuzzleManager | パズル進行・レベル管理 | 4 |
+| GameManager | GameState管理・設定・DEMO/URL定数 | 3 |
+| CaseManager | ケース進行・調査タイマー・判決管理 | 4 |
 | SceneManager | シーン遷移 | 5 |
 | SaveManager | セーブ・ロード | 6 |
 | AudioManager | BGM/SFX | 7 |
 
-初期化順序: Logger → EventBus → GameManager → PuzzleManager → SceneManager → SaveManager → AudioManager
+初期化順序: Logger → EventBus → GameManager → CaseManager → SceneManager → SaveManager → AudioManager
+
+旧 `PuzzleManager` はナラティブ調査型への再設計に伴い破棄し、`CaseManager` で置換する。
 
 ## ポーズ設定
 
 | ノード | Process Mode |
 |-------|-------------|
-| ゲームプレイ画面ルート | PROCESS_MODE_PAUSABLE |
+| 調査画面ルート（InvestigationScreen） | PROCESS_MODE_PAUSABLE |
 | ポーズメニュー（CanvasLayer） | PROCESS_MODE_WHEN_PAUSED |
-| HUD（CanvasLayer） | PROCESS_MODE_WHEN_PAUSED |
+| カウントダウン表示 | PROCESS_MODE_PAUSABLE |
 | BGM（AudioStreamPlayer） | PROCESS_MODE_ALWAYS |
+
+カウントダウン本体は CaseManager が所有し、`GameState == INVESTIGATING` のときのみ減算するため、ポーズ（PAUSED）で自動停止する。
 
 ## セーブスキーマ（v1）
 
@@ -65,9 +71,10 @@ enum GameState {
 | `meta` | `save_version` | `int` | `1` | スキーマバージョン |
 | `meta` | `saved_at` | `String` | `""` | 保存日時 |
 | `meta` | `play_time` | `float` | `0.0` | 累積プレイ時間（秒） |
-| `progress` | `level_reached` | `int` | `1` | 到達済み最大レベル番号 |
-| `progress` | `levels_cleared` | `String` | `"[]"` | クリア済みレベルIDリスト（JSON） |
-| `progress` | `scores` | `String` | `"{}"` | レベル別スコア（JSON dict） |
+| `progress` | `cases_resolved` | `String` | `"[]"` | クリア済みケースIDリスト（JSON配列） |
+| `progress` | `case_verdicts` | `String` | `"{}"` | ケース別の到達 outcome_key 配列（JSON dict） |
+
+旧スキーマ（`level_reached`・`levels_cleared`・`scores`）はナラティブ調査型への再設計に伴い破棄。
 
 GameSettings は `class_name GameSettings extends Resource` で型安全に定義する。
 
