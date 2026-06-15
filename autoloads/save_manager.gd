@@ -12,6 +12,7 @@ var _settings_config: ConfigFile = ConfigFile.new()
 func _ready() -> void:
 	EventBus.save_requested.connect(save_game)
 	EventBus.load_requested.connect(load_game)
+	EventBus.case_resolved.connect(_on_case_resolved)
 	_load_settings()
 
 
@@ -79,6 +80,33 @@ func set_value(section: String, key: String, value: Variant) -> void:
 	_save_config.set_value(section, key, value)
 
 
+func _on_case_resolved(case_id: String, outcome_key: String, _read_count: int) -> void:
+	# cases_resolved: JSON array with duplicate prevention
+	var resolved_raw: String = _save_config.get_value("progress", "cases_resolved", "[]")
+	var resolved: Variant = JSON.parse_string(resolved_raw)
+	if not resolved is Array:
+		resolved = []
+	if case_id not in (resolved as Array):
+		(resolved as Array).append(case_id)
+	_save_config.set_value("progress", "cases_resolved", JSON.stringify(resolved))
+
+	# case_verdicts: JSON dict mapping case_id → array of outcome_keys
+	var verdicts_raw: String = _save_config.get_value("progress", "case_verdicts", "{}")
+	var verdicts: Variant = JSON.parse_string(verdicts_raw)
+	if not verdicts is Dictionary:
+		verdicts = {}
+	var arr: Variant = (verdicts as Dictionary).get(case_id, [])
+	if not arr is Array:
+		arr = []
+	if outcome_key not in (arr as Array):
+		(arr as Array).append(outcome_key)
+	(verdicts as Dictionary)[case_id] = arr
+	_save_config.set_value("progress", "case_verdicts", JSON.stringify(verdicts))
+
+	save_game()
+
+
 func _exit_tree() -> void:
 	EventBus.save_requested.disconnect(save_game)
 	EventBus.load_requested.disconnect(load_game)
+	EventBus.case_resolved.disconnect(_on_case_resolved)
