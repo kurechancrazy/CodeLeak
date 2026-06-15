@@ -19,17 +19,15 @@ var _htp_close_btn: Button
 
 var _htp_title_keys: Array[String] = [
 	"HTP_MISSION_TITLE",
-	"HTP_CODE_TITLE",
-	"HTP_INVEST_TITLE",
-	"HTP_HINT_TITLE",
-	"HTP_SCORE_TITLE",
+	"HTP_EVIDENCE_TITLE",
+	"HTP_VERDICT_TITLE",
+	"HTP_REPLAY_TITLE",
 ]
 var _htp_body_keys: Array[String] = [
 	"HTP_MISSION",
-	"HTP_CODE",
-	"HTP_INVEST",
-	"HTP_HINT",
-	"HTP_SCORE",
+	"HTP_EVIDENCE",
+	"HTP_VERDICT",
+	"HTP_REPLAY",
 ]
 
 
