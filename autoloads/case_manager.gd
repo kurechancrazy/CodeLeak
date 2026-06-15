@@ -52,6 +52,10 @@ func submit_verdict(outcome_key: String) -> void:
 	EventBus.verdict_submitted.emit(outcome_key)
 
 
+func stop_timer() -> void:
+	_timer_active = false
+
+
 func resolve_case() -> void:
 	if current_case == null:
 		return

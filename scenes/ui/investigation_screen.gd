@@ -274,6 +274,7 @@ func _on_countdown_updated(remaining: float) -> void:
 
 	if remaining <= 10.0:
 		prefix = "!! "
+		_countdown_label.visible = true
 		_countdown_label.add_theme_font_size_override("font_size", 40)
 		_countdown_label.add_theme_color_override("font_color", _COLOR_DANGER)
 	elif remaining <= 60.0:
@@ -305,8 +306,7 @@ func _on_verdict_submitted(outcome_key: String) -> void:
 
 
 func _on_deliver_verdict() -> void:
-	# Stop timer immediately when player decides to go to verdict screen
-	CaseManager._timer_active = false
+	CaseManager.stop_timer()
 	EventBus.scene_change_requested.emit("res://scenes/ui/verdict_screen.tscn", "fade")
 
 
