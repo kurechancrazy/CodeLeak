@@ -45,20 +45,8 @@ func _build_layout() -> void:
 	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	add_child(bg)
 
-	_lang_btn = Button.new()
-	_lang_btn.flat = true
-	_lang_btn.custom_minimum_size = Vector2(60, 32)
-	_lang_btn.add_theme_color_override("font_color", _COLOR_DIM)
-	_lang_btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	_lang_btn.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	_lang_btn.offset_left = -80.0
-	_lang_btn.offset_top = 12.0
-	_lang_btn.offset_right = -12.0
-	_lang_btn.offset_bottom = 44.0
-	_lang_btn.pressed.connect(_on_lang_pressed)
-	add_child(_lang_btn)
-
 	var center := CenterContainer.new()
+	center.mouse_filter = Control.MOUSE_FILTER_PASS
 	center.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	add_child(center)
 
@@ -104,6 +92,19 @@ func _build_layout() -> void:
 	_quit_btn.add_theme_font_size_override("font_size", 24)
 	_quit_btn.pressed.connect(_on_quit_pressed)
 	vbox.add_child(_quit_btn)
+
+	_lang_btn = Button.new()
+	_lang_btn.flat = true
+	_lang_btn.custom_minimum_size = Vector2(60, 32)
+	_lang_btn.add_theme_color_override("font_color", _COLOR_TEXT)
+	_lang_btn.add_theme_color_override("font_hover_color", Color.WHITE)
+	_lang_btn.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
+	_lang_btn.offset_left = -80.0
+	_lang_btn.offset_top = 12.0
+	_lang_btn.offset_right = -12.0
+	_lang_btn.offset_bottom = 44.0
+	_lang_btn.pressed.connect(_on_lang_pressed)
+	add_child(_lang_btn)
 
 	_refresh_labels()
 
@@ -201,8 +202,10 @@ func _show_htp(show: bool) -> void:
 func _on_lang_pressed() -> void:
 	var current: String = str(GameManager.settings.get("language", "en"))
 	var next_locale: String = "ja" if current == "en" else "en"
+	TranslationServer.set_locale(next_locale)
 	GameManager.update_setting("language", next_locale)
 	SaveManager.save_settings()
+	_refresh_labels()
 
 
 func _on_settings_changed(key: String, _value: Variant) -> void:
@@ -218,7 +221,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_play_pressed() -> void:
-	EventBus.scene_change_requested.emit("res://scenes/game/game_screen.tscn", "fade")
+	EventBus.scene_change_requested.emit("res://scenes/ui/case_select_screen.tscn", "fade")
 
 
 func _on_quit_pressed() -> void:

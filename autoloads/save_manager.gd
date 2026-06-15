@@ -12,7 +12,6 @@ var _settings_config: ConfigFile = ConfigFile.new()
 func _ready() -> void:
 	EventBus.save_requested.connect(save_game)
 	EventBus.load_requested.connect(load_game)
-	EventBus.puzzle_completed.connect(_on_puzzle_completed)
 	_load_settings()
 
 
@@ -80,32 +79,6 @@ func set_value(section: String, key: String, value: Variant) -> void:
 	_save_config.set_value(section, key, value)
 
 
-func _on_puzzle_completed(score: int, _miss_count: int, _elapsed_time: float) -> void:
-	if PuzzleManager.current_puzzle == null:
-		return
-	var level_id: String = PuzzleManager.current_puzzle.level_id
-
-	var scores_json: String = _save_config.get_value("progress", "scores", "{}")
-	var scores: Variant = JSON.parse_string(scores_json)
-	if not scores is Dictionary:
-		scores = {}
-	if score > int(scores.get(level_id, 0)):
-		scores[level_id] = score
-		_save_config.set_value("progress", "scores", JSON.stringify(scores))
-
-	var cleared_json: String = _save_config.get_value("progress", "levels_cleared", "[]")
-	var cleared: Variant = JSON.parse_string(cleared_json)
-	if not cleared is Array:
-		cleared = []
-	if level_id not in cleared:
-		cleared.append(level_id)
-		_save_config.set_value("progress", "levels_cleared", JSON.stringify(cleared))
-
-	_save_config.set_value("progress", "level_reached", level_id)
-	save_game()
-
-
 func _exit_tree() -> void:
 	EventBus.save_requested.disconnect(save_game)
 	EventBus.load_requested.disconnect(load_game)
-	EventBus.puzzle_completed.disconnect(_on_puzzle_completed)

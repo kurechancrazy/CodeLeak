@@ -11,35 +11,6 @@ func before_each() -> void:
 	add_child_autofree(_game_manager)
 
 
-# --- スコア計算 ---
-
-
-func test_add_score_increases_score() -> void:
-	_game_manager.score = 0
-	_game_manager.add_score(100)
-	assert_eq(_game_manager.score, 100, "スコアが加算されること")
-
-
-func test_add_score_updates_high_score() -> void:
-	_game_manager.score = 0
-	_game_manager.high_score = 0
-	_game_manager.add_score(500)
-	assert_eq(_game_manager.high_score, 500, "高スコアが更新されること")
-
-
-func test_high_score_not_overwritten_by_lower_score() -> void:
-	_game_manager.high_score = 1000
-	_game_manager.score = 0
-	_game_manager.add_score(200)
-	assert_eq(_game_manager.high_score, 1000, "低いスコアでハイスコアが上書きされないこと")
-
-
-func test_reset_score_sets_to_zero() -> void:
-	_game_manager.score = 300
-	_game_manager.reset_score()
-	assert_eq(_game_manager.score, 0, "スコアリセットで0になること")
-
-
 # --- 状態遷移 ---
 
 
@@ -50,9 +21,72 @@ func test_transition_to_changes_state() -> void:
 
 
 func test_transition_to_same_state_is_idempotent() -> void:
-	_game_manager.state = _game_manager.GameState.PLAYING
-	_game_manager.transition_to(_game_manager.GameState.PLAYING)
-	assert_eq(_game_manager.state, _game_manager.GameState.PLAYING, "同じ状態への遷移が安全なこと")
+	_game_manager.state = _game_manager.GameState.MAIN_MENU
+	_game_manager.transition_to(_game_manager.GameState.MAIN_MENU)
+	assert_eq(_game_manager.state, _game_manager.GameState.MAIN_MENU, "同じ状態への遷移が安全なこと")
+
+
+func test_change_state_is_alias_for_transition_to() -> void:
+	_game_manager.state = _game_manager.GameState.BOOT
+	_game_manager.change_state(_game_manager.GameState.MAIN_MENU)
+	assert_eq(_game_manager.state, _game_manager.GameState.MAIN_MENU, "change_state が状態を遷移させること")
+
+
+# --- GameState enum の存在確認 ---
+
+
+func test_boot_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.BOOT in _game_manager.GameState.values(),
+		"BOOT ステートが GameState enum に存在すること"
+	)
+
+
+func test_main_menu_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.MAIN_MENU in _game_manager.GameState.values(),
+		"MAIN_MENU ステートが GameState enum に存在すること"
+	)
+
+
+func test_case_select_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.CASE_SELECT in _game_manager.GameState.values(),
+		"CASE_SELECT ステートが GameState enum に存在すること"
+	)
+
+
+func test_investigating_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.INVESTIGATING in _game_manager.GameState.values(),
+		"INVESTIGATING ステートが GameState enum に存在すること"
+	)
+
+
+func test_verdict_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.VERDICT in _game_manager.GameState.values(),
+		"VERDICT ステートが GameState enum に存在すること"
+	)
+
+
+func test_paused_state_exists() -> void:
+	assert_true(
+		_game_manager.GameState.PAUSED in _game_manager.GameState.values(),
+		"PAUSED ステートが GameState enum に存在すること"
+	)
+
+
+func test_transition_to_investigating() -> void:
+	_game_manager.state = _game_manager.GameState.BRIEFING
+	_game_manager.transition_to(_game_manager.GameState.INVESTIGATING)
+	assert_eq(_game_manager.state, _game_manager.GameState.INVESTIGATING, "INVESTIGATING に遷移できること")
+
+
+func test_transition_to_verdict() -> void:
+	_game_manager.state = _game_manager.GameState.INVESTIGATING
+	_game_manager.transition_to(_game_manager.GameState.VERDICT)
+	assert_eq(_game_manager.state, _game_manager.GameState.VERDICT, "VERDICT に遷移できること")
 
 
 # --- 設定更新 ---
@@ -69,57 +103,12 @@ func test_update_setting_with_unknown_key_does_not_crash() -> void:
 	assert_eq(_game_manager.settings.has("non_existent_key"), false, "未知のキーは追加されない")
 
 
-# --- 境界値 ---
+# --- 定数 ---
 
 
-func test_add_score_with_zero() -> void:
-	_game_manager.score = 100
-	_game_manager.add_score(0)
-	assert_eq(_game_manager.score, 100, "0加算でスコアが変わらないこと")
+func test_is_demo_constant_exists() -> void:
+	assert_true(_game_manager.IS_DEMO is bool, "IS_DEMO 定数が bool 型で存在すること")
 
 
-func test_add_score_with_negative() -> void:
-	_game_manager.score = 100
-	_game_manager.add_score(-50)
-	assert_eq(_game_manager.score, 50, "負のスコア加算が機能すること")
-
-
-# --- change_state エイリアス ---
-
-
-func test_change_state_is_alias_for_transition_to() -> void:
-	_game_manager.state = _game_manager.GameState.BOOT
-	_game_manager.change_state(_game_manager.GameState.MAIN_MENU)
-	assert_eq(_game_manager.state, _game_manager.GameState.MAIN_MENU, "change_state が状態を遷移させること")
-
-
-func test_change_state_rpg_states_accessible() -> void:
-	_game_manager.change_state(_game_manager.GameState.FIELD)
-	assert_eq(_game_manager.state, _game_manager.GameState.FIELD, "RPG 拡張ステートに遷移できること")
-
-
-# --- RESULT ステート / last_result ---
-
-
-func test_result_state_exists() -> void:
-	assert_true(
-		_game_manager.GameState.RESULT in _game_manager.GameState.values(),
-		"RESULT ステートが GameState enum に存在すること"
-	)
-
-
-func test_last_result_initial_score_is_zero() -> void:
-	assert_eq(int(_game_manager.last_result.get("score", -1)), 0, "last_result.score の初期値は 0")
-
-
-func test_last_result_can_be_written_and_read() -> void:
-	_game_manager.last_result = {
-		"score": 850,
-		"miss_count": 1,
-		"elapsed_time": 42.5,
-		"hints_used": 0,
-		"is_new_high_score": true,
-	}
-	assert_eq(int(_game_manager.last_result.get("score", 0)), 850, "書き込んだスコアが読み取れること")
-	var is_new_high: bool = bool(_game_manager.last_result.get("is_new_high_score", false))
-	assert_true(is_new_high, "is_new_high_score が true であること")
+func test_store_url_constant_exists() -> void:
+	assert_true(_game_manager.STORE_URL is String, "STORE_URL 定数が String 型で存在すること")
