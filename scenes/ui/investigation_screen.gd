@@ -300,9 +300,8 @@ func _on_countdown_updated(remaining: float) -> void:
 
 func _on_verdict_submitted(outcome_key: String) -> void:
 	if outcome_key == "insufficient":
-		# Time expired path — show overlay
 		_time_expired_overlay.visible = true
-	# Manual verdict is handled by _on_deliver_verdict routing to VerdictScreen
+		_verdict_btn.disabled = true
 
 
 func _on_deliver_verdict() -> void:
