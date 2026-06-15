@@ -29,13 +29,13 @@
 
 ## 3. CaseManager Autoload
 
-- [ ] 3.1 `autoloads/case_manager.gd` を作成し `project.godot` の `[autoload]`（PuzzleManager の位置）と `architecture.md` に登録する。`PROCESS_MODE_ALWAYS`・`game_paused` 購読・`set_current_case`/`start_case`/`mark_evidence_read`/`resolve_case` を設計 §3.2 通り実装する。
+- [x] 3.1 `autoloads/case_manager.gd` を作成し `project.godot` の `[autoload]`（PuzzleManager の位置）と `architecture.md` に登録する。`PROCESS_MODE_ALWAYS`・`game_paused` 購読・`set_current_case`/`start_case`/`mark_evidence_read`/`resolve_case` を設計 §3.2 通り実装する。
   - _Requirements: 7.3, 2.1, 2.5_
-- [ ] 3.2 タイマーを `_tick(delta)` に分離し `_process` から呼ぶ。`_paused` フラグ制御、`time_remaining<=0` で `submit_verdict("insufficient")`、`submit_verdict` の冪等ガード（判決記録済みなら無視）、「判決を下す」時のタイマー停止を実装する。
+- [x] 3.2 タイマーを `_tick(delta)` に分離し `_process` から呼ぶ。`_paused` フラグ制御、`time_remaining<=0` で `submit_verdict("insufficient")`、`submit_verdict` の冪等ガード（判決記録済みなら無視）、「判決を下す」時のタイマー停止を実装する。
   - _Requirements: 2.4, 2.5, 2.6, 3.4_
-- [ ] 3.3 ビジネスロジックのヘルパーを実装する：`get_unread_evidence`・`get_verdict_options`（2択 + 共通 insufficient）・`get_alternate_hint`・`get_reached_outcome_count`。
+- [x] 3.3 ビジネスロジックのヘルパーを実装する：`get_unread_evidence`・`get_verdict_options`（2択 + 共通 insufficient）・`get_alternate_hint`・`get_reached_outcome_count`。
   - _Requirements: 3.2, 4.3, 4.5, 7.9_
-- [ ] 3.4 `tests/unit/test_case_manager.gd` を作成する。`_tick(241)` の時間切れ→insufficient、`submit_verdict` 冪等（submit 後 `_tick(999)` でも結末維持）、`_paused` でタイマー停止・解除で再開、ヘルパー各種の正常・境界（全既読・未到達）を検証する（get_tree 副作用なし）。
+- [x] 3.4 `tests/unit/test_case_manager.gd` を作成する。`_tick(241)` の時間切れ→insufficient、`submit_verdict` 冪等（submit 後 `_tick(999)` でも結末維持）、`_paused` でタイマー停止・解除で再開、ヘルパー各種の正常・境界（全既読・未到達）を検証する（get_tree 副作用なし）。
   - _Requirements: 2.4, 2.5, 2.6, 3.4, 4.3, 4.5, 7.9_
 
 ## 4. SaveManager スキーマ拡張
