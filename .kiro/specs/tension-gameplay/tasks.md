@@ -99,5 +99,5 @@
   - _Requirements: 1.8, 4.2_
 - [x] 11.2 全画面遷移マトリクスを手動検証する（MainMenu→CaseSelect→Briefing→Investigation→Verdict→Outcome→各分岐・再挑戦・Esc・時間切れ・ポーズ再開）。GUT 全 PASS・gdlint 0・gdformat 差分0 を確認する。
   - _Requirements: 2.5, 3.3, 4.9, 5.6_
-- [ ] 11.3 Web版（itch.io エクスポート）で実機検証する：シェアの選択可能Label表示、WLボタンの新規タブ遷移、`case_manifest` ロード、IS_DEMO/STORE_URL/WISHLIST_URL の実URL置換確認。
+- [x] 11.3 Web版（itch.io エクスポート）で実機検証する：シェアの選択可能Label表示、WLボタンの新規タブ遷移、`case_manifest` ロード、IS_DEMO/STORE_URL/WISHLIST_URL の実URL置換確認。
   - _Requirements: 4.7, 5.5, 7.7, 7.8_
