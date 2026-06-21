@@ -63,13 +63,6 @@ func test_investigating_state_exists() -> void:
 	)
 
 
-func test_verdict_state_exists() -> void:
-	assert_true(
-		_game_manager.GameState.VERDICT in _game_manager.GameState.values(),
-		"VERDICT ステートが GameState enum に存在すること"
-	)
-
-
 func test_paused_state_exists() -> void:
 	assert_true(
 		_game_manager.GameState.PAUSED in _game_manager.GameState.values(),
@@ -81,12 +74,6 @@ func test_transition_to_investigating() -> void:
 	_game_manager.state = _game_manager.GameState.BRIEFING
 	_game_manager.transition_to(_game_manager.GameState.INVESTIGATING)
 	assert_eq(_game_manager.state, _game_manager.GameState.INVESTIGATING, "INVESTIGATING に遷移できること")
-
-
-func test_transition_to_verdict() -> void:
-	_game_manager.state = _game_manager.GameState.INVESTIGATING
-	_game_manager.transition_to(_game_manager.GameState.VERDICT)
-	assert_eq(_game_manager.state, _game_manager.GameState.VERDICT, "VERDICT に遷移できること")
 
 
 # --- 設定更新 ---

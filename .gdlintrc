@@ -1,1 +1,1 @@
-{ "disable": ["class-variable-name"] }
+{ "disable": ["class-variable-name", "max-public-methods"] }

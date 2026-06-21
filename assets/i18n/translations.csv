@@ -26,16 +26,12 @@ BTN_BEGIN_INVESTIGATION,[ BEGIN INVESTIGATION ],[ 調査開始 ]
 EVIDENCE_UNREAD_PREFIX,,
 EVIDENCE_READ_MARKER,[READ],[既読]
 EVIDENCE_SELECTED_PREFIX,> ,>
-BTN_DELIVER_VERDICT,[ DELIVER VERDICT ],[ 判決を下す ]
 UNREAD_COUNT_SUFFIX,unread,件未読
 TIME_EXPIRED_TITLE,// TIME EXPIRED,// 時間切れ
 TIME_EXPIRED_BODY,"Insufficient evidence. Verdict confirmed: INSUFFICIENT.",証拠不十分のまま判決が確定した。
 BTN_CONTINUE,[ CONTINUE ],[ 続ける ]
 PAUSE_RESUME,[ RESUME INVESTIGATION ],[ 調査を再開する ]
 PAUSE_CASE_SELECT,[ ABANDON CASE ],[ ケースを中断する ]
-VERDICT_TITLE,// DELIVER YOUR VERDICT,// 判決を下せ
-VERDICT_SUBTITLE,"This decision is final. There is no appeal.",この判断は覆らない。
-VERDICT_INSUFFICIENT,Insufficient Evidence,証拠不十分
 OUTCOME_TITLE,// VERDICT DELIVERED,// 判決確定
 OUTCOME_YOUR_VERDICT,YOUR VERDICT:,あなたの判決:
 OUTCOME_UNREAD_PREFIX,Unconfirmed evidence:,未確認の証拠:
@@ -54,3 +50,14 @@ HTP_VERDICT_TITLE,VERDICT,判決
 HTP_VERDICT,"When ready (or when time runs out), deliver your verdict. Your decision is final. No correct answer exists.","準備ができたら（または時間切れで）判決を下せ。判断は覆らない。正解は存在しない。"
 HTP_REPLAY_TITLE,REPLAY,周回
 HTP_REPLAY,"Each verdict reveals a different outcome. Try all 3 to see the full picture.",判決ごとに異なる結末が明かされる。3つ全てを見て全容を把握せよ。
+VERDICT_WRONG_PENALTY,"— WRONG — -%d sec penalty","— 不正解 — -%d秒ペナルティ"
+CHAIN_REVIEW_TITLE,INVESTIGATION COMPLETE,調査完了
+CHAIN_REVIEW_ISSUES_IDENTIFIED,ISSUES IDENTIFIED: %d / %d,課題特定: %d / %d
+CHAIN_REVIEW_VERDICT_BTN,[ VERDICT ],[ 判決 ]
+CHAIN_REVIEW_STEP_TIMEOUT,TIMEOUT,タイムアウト
+CHAIN_REVIEW_ISSUE_RESOLVED,Resolved: %s,解決: %s
+CHAIN_REVIEW_SCORE,SCORE: %d pts,スコア: %d pt
+OUTCOME_SCORE,Investigation Score: %d pts,調査スコア: %d pt
+CITE_EVIDENCE_PROMPT,CITE EVIDENCE — select the evidence that answers this question,証拠を引用してください — この問いに答える証拠を選択してください
+CITE_EVIDENCE_BTN,[ CITE THIS EVIDENCE ],[ この証拠を引用する ]
+CHAIN_REVIEW_CITATION,CITED: %s,引用: %s

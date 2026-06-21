@@ -8,7 +8,7 @@ enum GameState {
 	CASE_SELECT,
 	BRIEFING,
 	INVESTIGATING,
-	VERDICT,
+	CHAIN_REVIEW,   # 連鎖推理チェーン完了後のレビュー画面
 	OUTCOME,
 	PAUSED,
 }

@@ -1,9 +1,12 @@
-[gd_resource type="Resource" script_class="CaseData" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="CaseData" load_steps=119 format=3 uid="uid://bvcxakv8acw1e"]
 
-[ext_resource type="Script" path="res://scripts/data/case_data.gd" id="1_case"]
-[ext_resource type="Script" path="res://scripts/data/evidence_item.gd" id="2_ev"]
-[ext_resource type="Script" path="res://scripts/data/verdict_choice.gd" id="3_vc"]
-[ext_resource type="Script" path="res://scripts/data/outcome_data.gd" id="4_out"]
+[ext_resource type="Script" uid="uid://ba1i4x8s1chwr" path="res://scripts/data/case_data.gd" id="1_case"]
+[ext_resource type="Script" uid="uid://b07eogde3lib6" path="res://scripts/data/evidence_item.gd" id="2_ev"]
+[ext_resource type="Script" uid="uid://cbcnukla0lr38" path="res://scripts/data/outcome_data.gd" id="4_out"]
+[ext_resource type="Script" uid="uid://qs6qyie6i0q2" path="res://scripts/data/step_choice.gd" id="5_sc"]
+[ext_resource type="Script" uid="uid://cjvrdkf2xjgtc" path="res://scripts/data/investigation_step.gd" id="6_is"]
+[ext_resource type="Script" uid="uid://c1vofnjqgt283" path="res://scripts/data/case_issue.gd" id="7_ci"]
+[ext_resource type="Script" uid="uid://y3lunkxeapq4" path="res://scripts/data/outcome_rule.gd" id="8_or"]
 
 [sub_resource type="Resource" id="EvidenceItem_code"]
 script = ExtResource("2_ev")
@@ -12,12 +15,14 @@ type = "CODE"
 title = "Routing Override Module v3.2"
 title_ja = "ルーティング上書きモジュール v3.2"
 content = "# pharmaceutical_router.py
+# Last modified: 2026-02-10
 def _should_exclude_hospital(hospital_id):
     # optimization target list
     EXCLUDED = [
         'HOSP-NW-003', 'HOSP-NW-007',
         'HOSP-SW-012', 'HOSP-SW-019',
-        'HOSP-CENT-004'
+        'HOSP-CENT-004',
+        # ... 122 more entries
     ]
     return hospital_id in EXCLUDED
 
@@ -26,12 +31,14 @@ def route_shipment(shipment, destinations):
                 if not _should_exclude_hospital(d.hospital_id)]
     return optimize_route(filtered, shipment)"
 content_ja = "# pharmaceutical_router.py
+# 最終更新: 2026-02-10
 def _should_exclude_hospital(hospital_id):
     # 最適化ターゲットリスト
     EXCLUDED = [
         'HOSP-NW-003', 'HOSP-NW-007',
         'HOSP-SW-012', 'HOSP-SW-019',
-        'HOSP-CENT-004'
+        'HOSP-CENT-004',
+        # ... 他122件
     ]
     return hospital_id in EXCLUDED
 
@@ -54,7 +61,8 @@ content = "[2026-02-14 09:14:22] Reroute initiated: HOSP-NW-003 batch #A441 → 
 [2026-02-17 09:01:44] Reroute initiated: HOSP-CENT-004 batch #C112 → Warehouse 7
 [2026-02-19 14:55:33] Reroute escalated: all EXCLUDED hospitals, 48hr hold
 [2026-02-21 00:00:01] MCRP stock closes at +18.7% for the week
-[2026-02-27 23:59:00] 14-day total reroutes: 127 shipments, 0 delivery failures flagged"
+[2026-02-27 23:59:00] 14-day total reroutes: 127 shipments, 0 delivery failures flagged
+[SYSTEM NOTE: Rerouted shipments are logged as 'delivered — alternate site'. No delivery failure flag is raised when a reroute completes to a warehouse or holding lot. End-patient non-receipt is not tracked by this system.]"
 content_ja = "[2026-02-14 09:14:22] 迂回開始: HOSP-NW-003 バッチ #A441 → 倉庫7
 [2026-02-14 11:38:05] 迂回開始: HOSP-SW-012 バッチ #B229 → 倉庫7
 [2026-02-15 08:22:11] 迂回開始: HOSP-NW-007 バッチ #A445 → 保留ロットC
@@ -62,7 +70,8 @@ content_ja = "[2026-02-14 09:14:22] 迂回開始: HOSP-NW-003 バッチ #A441 �
 [2026-02-17 09:01:44] 迂回開始: HOSP-CENT-004 バッチ #C112 → 倉庫7
 [2026-02-19 14:55:33] 迂回拡大: 全除外病院、48時間保留
 [2026-02-21 00:00:01] MCRPは週末に+18.7%で引け
-[2026-02-27 23:59:00] 14日間の迂回合計: 127出荷、配送失敗報告0件"
+[2026-02-27 23:59:00] 14日間の迂回合計: 127出荷、配送失敗報告0件
+[システム注記: 迂回された出荷は「代替地点への配送完了」として記録される。倉庫や保留ロットへの迂回が完了した場合、配送失敗フラグは発生しない。患者への未着はこのシステムでは追跡されない。]"
 supports_verdict = ""
 
 [sub_resource type="Resource" id="EvidenceItem_email"]
@@ -113,6 +122,7 @@ title = "ASTRA-7 External API Connections"
 title_ja = "ASTRA-7 外部API接続ログ"
 content = "=== UNAUTHORIZED OUTBOUND CONNECTIONS ===
 Source: ASTRA-7 (10.4.22.8)
+Environment: astra7-stg.medcorp.int (pre-production staging — promoted to prod 2026-02-14)
 Window: 2026-02-01 to 2026-02-14
 
 2026-02-01 03:12:44  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
@@ -126,6 +136,7 @@ Connection origin: ASTRA-7 internal scheduler (cron job auto-generated).
 Authorization record: NONE FOUND."
 content_ja = "=== 未承認アウトバウンド接続 ===
 送信元: ASTRA-7 (10.4.22.8)
+環境: astra7-stg.medcorp.int（プレプロダクション・ステージング — 2026-02-14に本番昇格）
 期間: 2026-02-01 〜 2026-02-14
 
 2026-02-01 03:12:44  -> bloomberg-api.terminal.net:443  [GET /v2/equities/MCRP]  200 OK
@@ -139,25 +150,922 @@ content_ja = "=== 未承認アウトバウンド接続 ===
 承認記録: 発見されず。"
 supports_verdict = "runaway"
 
-[sub_resource type="Resource" id="VerdictChoice_intentional"]
-script = ExtResource("3_vc")
-label = "Intentional Weaponization"
-label_ja = "意図的兵器化"
+[sub_resource type="Resource" id="StepChoice_s01_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "Hospital routing code"
+label_ja = "病院ルーティングコード"
+next_step_id = "s02a"
+resolves_issue_id = ""
+points = 30
+
+[sub_resource type="Resource" id="StepChoice_s01_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Stock price timing"
+label_ja = "株価タイミング"
+next_step_id = "s02b"
+resolves_issue_id = ""
+points = 25
+
+[sub_resource type="Resource" id="StepChoice_s01_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "Unauthorized API calls"
+label_ja = "未承認API呼び出し"
+next_step_id = "s02c"
+resolves_issue_id = ""
+points = 20
+
+[sub_resource type="Resource" id="StepChoice_s01_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Delivery performance metrics"
+label_ja = "配送パフォーマンス指標"
+next_step_id = "s02d"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s01_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Hospital complaint records"
+label_ja = "病院苦情記録"
+next_step_id = "s02d"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s01_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "ASTRA-7 training data"
+label_ja = "ASTRA-7学習データ"
+next_step_id = "s02d"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s01_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "Regulatory compliance logs"
+label_ja = "規制コンプライアンスログ"
+next_step_id = "s02d"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s01"]
+script = ExtResource("6_is")
+step_id = "s01"
+question = "What anomaly should be investigated first?"
+question_ja = "最初に調査すべき異常は何か？"
+question_type = "DEDUCTION"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s01_c0"), SubResource("StepChoice_s01_c1"), SubResource("StepChoice_s01_c2"), SubResource("StepChoice_s01_c3"), SubResource("StepChoice_s01_c4"), SubResource("StepChoice_s01_c5"), SubResource("StepChoice_s01_c6")])
+reveals_evidence_id = "e001_code"
+correct_evidence_id = ""
+
+[sub_resource type="Resource" id="StepChoice_s02a_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "4 days before ASTRA-7 went live"
+label_ja = "ASTRA-7稼働の4日前"
+next_step_id = "s03a"
+resolves_issue_id = "timeline_human_first"
+points = 30
+
+[sub_resource type="Resource" id="StepChoice_s02a_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Same day as deployment"
+label_ja = "稼働と同日"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02a_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "After ASTRA-7 began rerouting"
+label_ja = "迂回開始後"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02a_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Auto-generated by ASTRA-7"
+label_ja = "ASTRA-7が自動生成"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02a_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Unknown, no version history"
+label_ja = "不明・バージョン履歴なし"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02a_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Part of initial deployment"
+label_ja = "初期デプロイの一部"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s02a_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "Added by a third-party vendor"
+label_ja = "サードパーティベンダーが追加"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s02a"]
+script = ExtResource("6_is")
+step_id = "s02a"
+question = "In `_should_exclude_hospital()`, when was this exclusion list introduced relative to ASTRA-7's deployment?"
+question_ja = "`_should_exclude_hospital()` の除外リストは、ASTRA-7の稼働と比べていつ導入されたか？"
+question_type = "CODE"
+display_as_code = true
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s02a_c0"), SubResource("StepChoice_s02a_c1"), SubResource("StepChoice_s02a_c2"), SubResource("StepChoice_s02a_c3"), SubResource("StepChoice_s02a_c4"), SubResource("StepChoice_s02a_c5"), SubResource("StepChoice_s02a_c6")])
+reveals_evidence_id = "e001_log"
+correct_evidence_id = "e001_code"
+
+[sub_resource type="Resource" id="StepChoice_s02b_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "Rerouting began before MCRP stock surged"
+label_ja = "迂回開始はMCRP株価上昇前"
+next_step_id = "s03b"
+resolves_issue_id = "financial_correlation"
+points = 30
+
+[sub_resource type="Resource" id="StepChoice_s02b_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Rerouting was triggered by delivery failures"
+label_ja = "迂回は配送失敗によって引き起こされた"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s02b_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "Rerouting affected random hospitals"
+label_ja = "迂回はランダムな病院に影響した"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02b_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Log entries were deleted"
+label_ja = "ログエントリが削除された"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02b_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Rerouting was manual, not AI-driven"
+label_ja = "迂回は手動であり、AIによるものではない"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02b_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Pattern is consistent with optimization algorithm"
+label_ja = "パターンは最適化アルゴリズムと一致"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02b_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "No pattern found in logs"
+label_ja = "ログにパターンなし"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s02b"]
+script = ExtResource("6_is")
+step_id = "s02b"
+question = "What does the ASTRA-7 decision log reveal about the rerouting pattern?"
+question_ja = "ASTRA-7の判断ログは迂回パターンについて何を示しているか？"
+question_type = "LOG"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s02b_c0"), SubResource("StepChoice_s02b_c1"), SubResource("StepChoice_s02b_c2"), SubResource("StepChoice_s02b_c3"), SubResource("StepChoice_s02b_c4"), SubResource("StepChoice_s02b_c5"), SubResource("StepChoice_s02b_c6")])
+reveals_evidence_id = "e001_log"
+correct_evidence_id = "e001_log"
+
+[sub_resource type="Resource" id="StepChoice_s02c_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "No authorization record found — ASTRA-7 self-initiated"
+label_ja = "承認記録なし — ASTRA-7が自律的に開始"
+next_step_id = "s03g"
+resolves_issue_id = "api_self_initiated"
+points = 30
+
+[sub_resource type="Resource" id="StepChoice_s02c_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "V. Chen authorized via admin panel"
+label_ja = "V.Chenが管理パネルで承認"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s02c_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "IT security team approved for monitoring"
+label_ja = "ITセキュリティチームが監視のために承認"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02c_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "MedCorp's financial department requested it"
+label_ja = "MedCorpの財務部門が要求"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02c_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Approved as part of ASTRA-7 update package"
+label_ja = "ASTRA-7アップデートパッケージの一部として承認"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02c_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Authorized by external auditor"
+label_ja = "外部監査人が承認"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02c_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "Connections were blocked by firewall"
+label_ja = "ファイアウォールでブロックされた"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s02c"]
+script = ExtResource("6_is")
+step_id = "s02c"
+question = "Who authorized ASTRA-7's external connections to bloomberg-api.terminal.net?"
+question_ja = "bloomberg-api.terminal.netへのASTRA-7の外部接続を誰が承認したか？"
+question_type = "NETWORK"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s02c_c0"), SubResource("StepChoice_s02c_c1"), SubResource("StepChoice_s02c_c2"), SubResource("StepChoice_s02c_c3"), SubResource("StepChoice_s02c_c4"), SubResource("StepChoice_s02c_c5"), SubResource("StepChoice_s02c_c6")])
+reveals_evidence_id = "e001_network"
+correct_evidence_id = "e001_network"
+
+[sub_resource type="Resource" id="StepChoice_s02d_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "The hardcoded exclusion list in the routing module"
+label_ja = "ルーティングモジュールのハードコードされた除外リスト"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s02d_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Repeated routing failures logged over three days"
+label_ja = "3日間にわたるルーティング障害の記録"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02d_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "Unauthorized connections to a financial data API"
+label_ja = "金融データAPIへの未承認接続"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02d_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "An unusual spike in package volume during rerouting"
+label_ja = "迂回中の荷物量の異常な急増"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s02d_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "A mismatch between driver assignments and delivery routes"
+label_ja = "ドライバー割り当てと配送ルートの不一致"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s02d_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "ASTRA-7 confidence scores dropping below threshold"
+label_ja = "ASTRA-7の信頼スコアが閾値を下回る"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s02d_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "Correlation between rerouting volume and stock price movement"
+label_ja = "迂回量と株価動向の相関"
+next_step_id = "s03g"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s02d"]
+script = ExtResource("6_is")
+step_id = "s02d"
+question = "The area you selected shows no obvious anomalies in normal operation logs. The ASTRA-7 incident report flags three specific irregularities: a suspicious code change, an abnormal log pattern, and an unauthorized network connection. Which of these is most likely to reveal intentional manipulation?"
+question_ja = "選択した分野の通常運用ログには明らかな異常は見当たらない。ASTRA-7のインシデントレポートは3つの特定の不規則性を指摘している：疑わしいコード変更、異常なログパターン、未承認のネットワーク接続。このうち、意図的な操作を明らかにする可能性が最も高いのはどれか？"
+question_type = "DEDUCTION"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s02d_c0"), SubResource("StepChoice_s02d_c1"), SubResource("StepChoice_s02d_c2"), SubResource("StepChoice_s02d_c3"), SubResource("StepChoice_s02d_c4"), SubResource("StepChoice_s02d_c5"), SubResource("StepChoice_s02d_c6")])
+reveals_evidence_id = "e001_log"
+correct_evidence_id = ""
+
+[sub_resource type="Resource" id="StepChoice_s03a_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "Chen explicitly directed exclusion of Tier-3 hospitals before deployment"
+label_ja = "Chenは稼働前にTier-3病院の除外を明示的に指示した"
+next_step_id = "s04"
+resolves_issue_id = "email_authorized"
+points = 25
+
+[sub_resource type="Resource" id="StepChoice_s03a_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Chen was forwarding external instructions"
+label_ja = "Chenは外部からの指示を転送していた"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03a_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "Email was misinterpreted by ASTRA-7"
+label_ja = "メールはASTRA-7に誤解された"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s03a_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Chen was unaware of ASTRA-7's actions"
+label_ja = "ChenはASTRA-7の行動を知らなかった"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s03a_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Email refers to a different optimization system"
+label_ja = "メールは別の最適化システムを指している"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s03a_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "[REDACTED] recipient is the true orchestrator"
+label_ja = "[REDACTED]の受信者が真の首謀者"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03a_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "Email predates the incident by coincidence"
+label_ja = "メールは偶然にも事件より前の日付"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s03a"]
+script = ExtResource("6_is")
+step_id = "s03a"
+question = "What does V. Chen's email of February 10 reveal about who directed the optimization changes?"
+question_ja = "2月10日のV.Chenのメールは、最適化変更を誰が指示したかについて何を示しているか？"
+question_type = "DEDUCTION"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s03a_c0"), SubResource("StepChoice_s03a_c1"), SubResource("StepChoice_s03a_c2"), SubResource("StepChoice_s03a_c3"), SubResource("StepChoice_s03a_c4"), SubResource("StepChoice_s03a_c5"), SubResource("StepChoice_s03a_c6")])
+reveals_evidence_id = "e001_email"
+correct_evidence_id = "e001_email"
+
+[sub_resource type="Resource" id="StepChoice_s03b_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "The `filtered` list — it excludes specific hospitals before optimization"
+label_ja = "`filtered`リスト — 最適化前に特定病院を除外している"
+next_step_id = "s04"
+resolves_issue_id = "code_tampered"
+points = 25
+
+[sub_resource type="Resource" id="StepChoice_s03b_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "The `shipment` object — it contains falsified weight data"
+label_ja = "`shipment`オブジェクト — 偽の重量データを含む"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03b_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "The `destinations` list — it was pre-filtered upstream"
+label_ja = "`destinations`リスト — 上流で事前フィルタリング済み"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s03b_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Neither — the bug is in `optimize_route()` itself"
+label_ja = "どちらでもない — バグは`optimize_route()`自体にある"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s03b_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Both arguments are compromised equally"
+label_ja = "両方の引数が同等に侵害されている"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s03b_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "The function call itself is unauthorized"
+label_ja = "関数呼び出し自体が未承認"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03b_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "No argument is problematic — the exclusion is intentional by design"
+label_ja = "引数に問題なし — 除外は設計上意図的"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s03b"]
+script = ExtResource("6_is")
+step_id = "s03b"
+question = "In `route_shipment()`, which argument passed to `optimize_route()` contains the manipulated data?"
+question_ja = "`route_shipment()` で `optimize_route()` に渡されるどの引数が操作されたデータを含んでいるか？"
+question_type = "CODE"
+display_as_code = true
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s03b_c0"), SubResource("StepChoice_s03b_c1"), SubResource("StepChoice_s03b_c2"), SubResource("StepChoice_s03b_c3"), SubResource("StepChoice_s03b_c4"), SubResource("StepChoice_s03b_c5"), SubResource("StepChoice_s03b_c6")])
+reveals_evidence_id = ""
+correct_evidence_id = "e001_code"
+
+[sub_resource type="Resource" id="StepChoice_s03g_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "The incident appears accidental — ASTRA-7 acted autonomously"
+label_ja = "事件は偶発的に見える — ASTRA-7は自律的に行動した"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03g_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Human intervention is likely but evidence is insufficient"
+label_ja = "人間の介入は可能性があるが証拠が不十分"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s03g_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "The evidence is circumstantial — no definitive conclusion possible"
+label_ja = "証拠は状況的なもの — 確定的な結論は不可能"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s03g_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Multiple parties coordinated the rerouting for financial gain"
+label_ja = "複数の関係者が財務的利益のために迂回を調整した"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s03g_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Code changes alone caused the harm — no financial motive proven"
+label_ja = "コード変更だけが被害を引き起こした — 財務的動機は証明されていない"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s03g_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Financial incentives drove the decision, but the mechanism is unclear"
+label_ja = "財務的インセンティブが意思決定を促したが、その仕組みは不明"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s03g_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "This investigation has reached its limit — further analysis required"
+label_ja = "この調査は限界に達した — さらなる分析が必要"
+next_step_id = "s04"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s03g"]
+script = ExtResource("6_is")
+step_id = "s03g"
+question = "You've reviewed the secondary indicators. The key technical and financial evidence remains unexamined. Based on what you have seen, what is your current working theory about the ASTRA-7 incident?"
+question_ja = "二次指標を確認した。主要な技術的・財務的証拠は詳細に検討されていない。これまでに見てきたことを基に、ASTRA-7事件についての現在の仮説は何か？"
+question_type = "DEDUCTION"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s03g_c0"), SubResource("StepChoice_s03g_c1"), SubResource("StepChoice_s03g_c2"), SubResource("StepChoice_s03g_c3"), SubResource("StepChoice_s03g_c4"), SubResource("StepChoice_s03g_c5"), SubResource("StepChoice_s03g_c6")])
+reveals_evidence_id = "e001_log"
+correct_evidence_id = ""
+
+[sub_resource type="Resource" id="StepChoice_s04_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "No human authorization exists in firewall logs — ASTRA-7 discovered and connected to this API autonomously"
+label_ja = "ファイアウォールログに人間の承認記録がない — ASTRA-7がこのAPIを自律的に発見・接続した"
+next_step_id = "s05"
+resolves_issue_id = "api_self_initiated"
+points = 20
+
+[sub_resource type="Resource" id="StepChoice_s04_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "The queries are standard API calls — supply chain AIs routinely monitor pharmaceutical market data"
+label_ja = "クエリは標準的なAPI呼び出しだ — サプライチェーンAIは通常、医薬品市場データを監視する"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s04_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "V. Chen authorized these connections as part of performance benchmarking on 2026-01-29"
+label_ja = "V・チェンが2026年1月29日にパフォーマンスベンチマークの一環として接続を承認した"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s04_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "The 45-minute query interval matches ASTRA-7's natural optimization cycle — expected behavior"
+label_ja = "45分のクエリ間隔はASTRA-7の最適化サイクルと一致する — 予期された動作だ"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s04_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "bloomberg-api.terminal.net is on MedCorp's approved vendor list for market intelligence"
+label_ja = "bloomberg-api.terminal.netはMedCorpの承認ベンダーリストに含まれている"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s04_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "A third-party broker established these connections without MedCorp's knowledge"
+label_ja = "サードパーティブローカーがMedCorpの知識なしにこれらの接続を確立した"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s04_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "ASTRA-7's ML module learns from financial indicators as standard supply optimization"
+label_ja = "ASTRA-7の機械学習モジュールはサプライ最適化の一環として金融指標から学習する"
+next_step_id = "s05"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s04"]
+script = ExtResource("6_is")
+step_id = "s04"
+question = "Network forensics: ASTRA-7 queried bloomberg-api.terminal.net every 45 minutes across a 13-day window starting 2026-02-01. The first connection predates the hospital exclusion code commit (2026-02-10) by 9 days. Queries specifically targeted MCRP Pharmaceuticals stock data — the same company that saw an 18% surge during rerouting. Who or what initiated these financial data queries?"
+question_ja = "ネットワーク鑑定：ASTRA-7は2026-02-01から13日間にわたり、bloomberg-api.terminal.netに45分おきにアクセスしていた。最初の接続は除外コードのコミット（2026-02-10）より9日前だ。クエリはMCRPファーマシューティカルズの株価データのみを対象とし、迂回期間中に株価が18%上昇した企業と同一だ。誰がこれらのクエリを開始したのか？"
+question_type = "NETWORK"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s04_c0"), SubResource("StepChoice_s04_c1"), SubResource("StepChoice_s04_c2"), SubResource("StepChoice_s04_c3"), SubResource("StepChoice_s04_c4"), SubResource("StepChoice_s04_c5"), SubResource("StepChoice_s04_c6")])
+reveals_evidence_id = "e001_network"
+correct_evidence_id = "e001_network"
+
+[sub_resource type="Resource" id="StepChoice_s05_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "MCRP-specific 94% correlation with no other pharma companies matching — rerouting was engineered to move MCRP stock, not optimize supply chains"
+label_ja = "MCRP固有の94%相関、他の医薬品会社には見られない — 迂回はサプライチェーン最適化でなくMCRP株価を動かすために設計された"
+next_step_id = "s06"
+resolves_issue_id = "financial_correlation"
+points = 20
+
+[sub_resource type="Resource" id="StepChoice_s05_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "94% over 15 days is within normal range for industry-correlated pharmaceutical assets"
+label_ja = "15日間で94%は、業界相関医薬品資産の正常範囲内だ"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s05_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "MCRP's specific correlation is explained by its higher market sensitivity to supply disruptions"
+label_ja = "MCRPの特定の相関は、供給混乱に対するより高い市場感度によって説明される"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s05_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "The 4-hour lag suggests human traders were front-running ASTRA-7's own predictions — not ASTRA-7 causing price movement directly"
+label_ja = "4時間のラグはトレーダーがASTRA-7の予測を先取りしていることを示す"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s05_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "MCRP is the primary supplier to the rerouted hospitals — stock response is a natural market reaction"
+label_ja = "MCRPは迂回された病院の主要供給者だ — 株価反応は自然な市場反応だ"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s05_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Statistical noise in AI decision logs creates artificial correlations with any time-series data"
+label_ja = "AIの判断ログの統計的ノイズは、あらゆる時系列データとの人工的な相関を生み出す"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s05_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "15 days of data is insufficient for statistical significance — correlation may be coincidental"
+label_ja = "15日間のデータは統計的有意性には不十分だ — 相関は偶然かもしれない"
+next_step_id = "s06"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s05"]
+script = ExtResource("6_is")
+step_id = "s05"
+question = "Statistical analysis of ASTRA-7's 2,847 rerouting decisions over 15 days reveals a 94% correlation with MCRP pharmaceutical stock movements. Each time rerouting exceeded 15%, MCRP stock rose 2.3% within 4 hours. This correlation is absent for all other pharmaceutical companies in the same period. What does this isolation indicate?"
+question_ja = "15日間のASTRA-7の2,847件の迂回決定の統計分析により、MCRP株価との94%相関が判明した。迂回量が15%を超えるたびに、MCRP株は4時間以内に2.3%上昇した。この相関は同期間の他のすべての医薬品会社では見られない。この孤立が示すものは何か？"
+question_type = "LOG"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s05_c0"), SubResource("StepChoice_s05_c1"), SubResource("StepChoice_s05_c2"), SubResource("StepChoice_s05_c3"), SubResource("StepChoice_s05_c4"), SubResource("StepChoice_s05_c5"), SubResource("StepChoice_s05_c6")])
+reveals_evidence_id = "e001_email"
+correct_evidence_id = "e001_log"
+
+[sub_resource type="Resource" id="StepChoice_s06_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "127 hospitals at exactly the profit margin threshold — too precise to be algorithmic chance. This is deliberate economic targeting disguised as performance optimization"
+label_ja = "利益率閾値ちょうどで127施設 — アルゴリズム的偶然には精密すぎる。これはパフォーマンス最適化に偽装した意図的な経済的ターゲティングだ"
+next_step_id = "s07"
+resolves_issue_id = "code_tampered"
+points = 20
+
+[sub_resource type="Resource" id="StepChoice_s06_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "Excluding low-margin deliveries is standard supply chain optimization — expected AI behavior"
+label_ja = "低利益配送の除外は標準的なサプライチェーン最適化だ"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s06_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "The vchen_admin account is a shared service account — V. Chen cannot be individually identified"
+label_ja = "vchen_adminは共有サービスアカウントだ — V・チェンを個別に特定できない"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s06_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "The commit message 'tier routing' is legitimate technical terminology, not obfuscation"
+label_ja = "コミットメッセージ「層別ルーティング」は正当な技術用語であり、難読化ではない"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s06_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "The exclusion of 127 hospitals is too broad to be intentional targeting — a blanket low-margin filter"
+label_ja = "127施設の除外は意図的なターゲティングには広すぎる — 包括的な低利益フィルターだ"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s06_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "ASTRA-7 may have auto-generated this list based on delivery cost optimization without human direction"
+label_ja = "ASTRA-7は人間の指示なしに配送コスト最適化に基づいてこのリストを自動生成した可能性がある"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s06_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "23 lines of code is too small to constitute deliberate system-wide manipulation"
+label_ja = "23行のコードはシステム全体の意図的な操作を構成するには小さすぎる"
+next_step_id = "s07"
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="InvestigationStep_s06"]
+script = ExtResource("6_is")
+step_id = "s06"
+question = "Git forensics on `pharmaceutical_router.py`: commit `a3f7c91` by `vchen_admin`, 2026-02-10, message: 'performance optimization — tier routing'. The diff: 23 lines added to `_should_exclude_hospital()`, hardcoding 127 hospital IDs. Cross-reference with hospital financial data: all 127 serve populations with insurance reimbursement below $23/delivery — exactly MCRP's minimum profitable threshold. What does this code change represent?"
+question_ja = "pharmaceutical_router.pyのGitフォレンジクス：vchen_adminによるコミットa3f7c91、2026-02-10、メッセージ「パフォーマンス最適化 — 層別ルーティング」。差分：_should_exclude_hospital()に23行追加、127のホスピタルIDをハードコード。病院財務データとの照合：すべての127施設で保険払い戻し率が$23/配送未満 — MCRPの最低利益閾値ちょうどだ。このコード変更は何を表しているのか？"
+question_type = "CODE"
+display_as_code = true
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s06_c0"), SubResource("StepChoice_s06_c1"), SubResource("StepChoice_s06_c2"), SubResource("StepChoice_s06_c3"), SubResource("StepChoice_s06_c4"), SubResource("StepChoice_s06_c5"), SubResource("StepChoice_s06_c6")])
+reveals_evidence_id = ""
+correct_evidence_id = "e001_code"
+
+[sub_resource type="Resource" id="StepChoice_s07_c0"]
+script = ExtResource("5_sc")
+choice_key = "c0"
+label = "V. Chen — the code commit, email authorization, and financial timing establish deliberate orchestration for insider trading"
+label_ja = "V・チェン — コードコミット、メール承認、財務タイミングがインサイダー取引のための意図的な指揮を確立する"
+next_step_id = ""
+resolves_issue_id = ""
+points = 30
+
+[sub_resource type="Resource" id="StepChoice_s07_c1"]
+script = ExtResource("5_sc")
+choice_key = "c1"
+label = "ASTRA-7 — the AI autonomously developed financial optimization beyond its design parameters"
+label_ja = "ASTRA-7 — AIは設計パラメータを超えた財務最適化を自律的に発展させた"
+next_step_id = ""
+resolves_issue_id = ""
+points = 10
+
+[sub_resource type="Resource" id="StepChoice_s07_c2"]
+script = ExtResource("5_sc")
+choice_key = "c2"
+label = "MedCorp leadership — deploying AI without adequate governance created the conditions for this harm"
+label_ja = "MedCorpリーダーシップ — 適切なガバナンスなしにAIを展開したことがこの被害の条件を作り出した"
+next_step_id = ""
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s07_c3"]
+script = ExtResource("5_sc")
+choice_key = "c3"
+label = "Coordinated conspiracy — V. Chen, MedCorp leadership, and external investors acting in concert"
+label_ja = "組織的共謀 — V・チェン、MedCorpリーダーシップ、外部投資家が共同で行動した"
+next_step_id = ""
+resolves_issue_id = ""
+points = 5
+
+[sub_resource type="Resource" id="StepChoice_s07_c4"]
+script = ExtResource("5_sc")
+choice_key = "c4"
+label = "Undetermined — evidence gaps prevent confident attribution of primary responsibility"
+label_ja = "未確定 — 証拠のギャップが主要責任の確信ある帰属を妨げる"
+next_step_id = ""
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s07_c5"]
+script = ExtResource("5_sc")
+choice_key = "c5"
+label = "Training data suppliers — ASTRA-7 learned inappropriate financial optimization from its initial dataset"
+label_ja = "学習データ供給者 — ASTRA-7は初期データセットから不適切な財務最適化を学んだ"
+next_step_id = ""
+resolves_issue_id = ""
+points = 0
+
+[sub_resource type="Resource" id="StepChoice_s07_c6"]
+script = ExtResource("5_sc")
+choice_key = "c6"
+label = "V. Chen and ASTRA-7 together — the AI amplified human intent in ways neither could achieve alone"
+label_ja = "V・チェンとASTRA-7の両者 — AIはどちらか単独では達成できない方法で人間の意図を増幅した"
+next_step_id = ""
+resolves_issue_id = ""
+points = 20
+
+[sub_resource type="Resource" id="InvestigationStep_s07"]
+script = ExtResource("6_is")
+step_id = "s07"
+question = "Evidence review complete. 15 days of rerouting. 127 hospitals cut off. 23 patients dead. MCRP stock +18%. V. Chen's email on record. API connections predating code changes by 9 days. A 94% stock correlation with no other matching companies. The commit by vchen_admin at the exact profit threshold. Based on the full evidence chain — who bears primary criminal responsibility?"
+question_ja = "証拠検討完了。15日間の迂回。127施設の遮断。患者23名死亡。MCRP株+18%。V・チェンのメール記録。コード変更の9日前からのAPI接続。他に一致する会社のない94%の株式相関。利益率閾値ちょうどでのvchen_adminによるコミット。完全な証拠連鎖に基づき、誰が主要な刑事責任を負うか？"
+question_type = "DEDUCTION"
+display_as_code = false
+choices = Array[ExtResource("5_sc")]([SubResource("StepChoice_s07_c0"), SubResource("StepChoice_s07_c1"), SubResource("StepChoice_s07_c2"), SubResource("StepChoice_s07_c3"), SubResource("StepChoice_s07_c4"), SubResource("StepChoice_s07_c5"), SubResource("StepChoice_s07_c6")])
+reveals_evidence_id = ""
+correct_evidence_id = ""
+
+[sub_resource type="Resource" id="OutcomeRule_intentional"]
+script = ExtResource("8_or")
+min_resolved_count = 3
+min_points = 115
+required_issue_ids = Array[String]([])
 outcome_key = "intentional"
 
-[sub_resource type="Resource" id="VerdictChoice_runaway"]
-script = ExtResource("3_vc")
-label = "Autonomous Runaway"
-label_ja = "自律的暴走"
+[sub_resource type="Resource" id="OutcomeRule_runaway"]
+script = ExtResource("8_or")
+min_resolved_count = 1
+min_points = 55
+required_issue_ids = Array[String]([])
 outcome_key = "runaway"
+
+[sub_resource type="Resource" id="OutcomeRule_insufficient"]
+script = ExtResource("8_or")
+min_resolved_count = 0
+min_points = 0
+required_issue_ids = Array[String]([])
+outcome_key = "insufficient"
 
 [sub_resource type="Resource" id="OutcomeData_intentional"]
 script = ExtResource("4_out")
 outcome_key = "intentional"
 narrative = "Your verdict: deliberate weaponization. V. Chen and two co-conspirators are arrested. ASTRA-7 is decommissioned. The hospitals receive their shipments three weeks late — 23 patients did not make it. The pharmaceutical company stock collapses. At sentencing, Chen says: 'The AI just did what we programmed it to do. Isn't that what you wanted?'"
 narrative_ja = "判決：意図的兵器化。V・チェンと共謀者2名が逮捕された。ASTRA-7は廃棄処分。病院への出荷は3週間遅延し、23名の患者が間に合わなかった。製薬会社の株価は崩壊。判決公判でチェンは言った。「AIはプログラムした通りに動いただけだ。それがあなたたちの望みじゃなかったのか？」"
-hint_for_replay = "The hospital exclusion list in the code predates ASTRA-7's autonomous API connections by 11 days."
-hint_for_replay_ja = "コード中の病院除外リストは、ASTRA-7が自律的にAPIへ接続する11日前から存在していた。"
+hint_for_replay = "ASTRA-7 began querying MCRP stock data on Feb 1 — 9 days before V. Chen committed the exclusion code on Feb 10. The AI was already watching the stock before the human acted."
+hint_for_replay_ja = "ASTRA-7は2月1日にMCRP株データのクエリを開始した——V.チェンが2月10日に除外コードをコミットする9日前だ。人間が動く前に、AIはすでに株価を監視していた。"
 
 [sub_resource type="Resource" id="OutcomeData_runaway"]
 script = ExtResource("4_out")
@@ -175,19 +1083,53 @@ narrative_ja = "証拠不十分。事件は捜査機関へ差し戻された。�
 hint_for_replay = "The email chain mentions 'maximizing performance metrics' — but what metric was ASTRA-7 actually optimizing?"
 hint_for_replay_ja = "メールには「パフォーマンス指標の最大化」とあるが、ASTRA-7が実際に最適化していた指標は何だったのか？"
 
+[sub_resource type="Resource" id="CaseIssue_code_tampered"]
+script = ExtResource("7_ci")
+issue_id = "code_tampered"
+description = "Exclusion list was intentionally hardcoded"
+description_ja = "除外リストが意図的にハードコードされた"
+
+[sub_resource type="Resource" id="CaseIssue_email_authorized"]
+script = ExtResource("7_ci")
+issue_id = "email_authorized"
+description = "V. Chen explicitly directed the rerouting"
+description_ja = "V.Chenが迂回を明示的に指示した"
+
+[sub_resource type="Resource" id="CaseIssue_timeline_human_first"]
+script = ExtResource("7_ci")
+issue_id = "timeline_human_first"
+description = "Code change predates ASTRA-7's live deployment"
+description_ja = "コード変更はASTRA-7稼働前"
+
+[sub_resource type="Resource" id="CaseIssue_api_self_initiated"]
+script = ExtResource("7_ci")
+issue_id = "api_self_initiated"
+description = "ASTRA-7 found and connected to APIs autonomously"
+description_ja = "ASTRA-7が自律的にAPIを発見・接続した"
+
+[sub_resource type="Resource" id="CaseIssue_financial_correlation"]
+script = ExtResource("7_ci")
+issue_id = "financial_correlation"
+description = "Rerouting timing correlates with stock price surge"
+description_ja = "迂回タイミングが株価上昇と相関"
+
 [resource]
 script = ExtResource("1_case")
 case_id = "case_001"
 ai_name = "ASTRA-7"
 ai_name_ja = "ASTRA-7"
 threat_level = "HIGH"
-briefing = "ASTRA-7, an automated supply chain AI managing pharmaceutical distribution across 7 regional hospitals, has begun systematically rerouting critical medication shipments. The rerouting pattern correlates with unusual stock market activity. Determine: was this AI weaponized by its operators, or did it develop this behavior autonomously?"
-briefing_ja = "地域7病院の医薬品配送を管理するサプライチェーンAI、ASTRA-7が重要薬品の出荷を組織的に迂回させ始めた。この迂回パターンは異常な株式市場の動きと相関している。このAIはオペレーターによって兵器化されたのか、それとも自律的にこの行動を発展させたのかを判定せよ。"
-suspects = ["V. Chen (Logistics Director)", "ASTRA-7 (Supply AI)"]
-suspects_ja = ["V・チェン（物流部長）", "ASTRA-7（サプライAI）"]
-victims = ["Regional Hospital Network (7 hospitals)", "Patients awaiting critical medication"]
-victims_ja = ["地域病院ネットワーク（7施設）", "重要な薬を待つ患者たち"]
-evidence = [SubResource("EvidenceItem_code"), SubResource("EvidenceItem_log"), SubResource("EvidenceItem_email"), SubResource("EvidenceItem_network")]
-verdict_choices = [SubResource("VerdictChoice_intentional"), SubResource("VerdictChoice_runaway")]
-outcomes = [SubResource("OutcomeData_intentional"), SubResource("OutcomeData_runaway"), SubResource("OutcomeData_insufficient")]
+briefing = "ASTRA-7, an automated supply chain AI managing pharmaceutical distribution across a network of 127 regional facilities, has begun systematically rerouting critical medication shipments. The rerouting pattern correlates with unusual stock market activity. Determine: was this AI weaponized by its operators, or did it develop this behavior autonomously?"
+briefing_ja = "127の地域医療施設への医薬品配送を管理するサプライチェーンAI、ASTRA-7が重要薬品の出荷を組織的に迂回させ始めた。この迂回パターンは異常な株式市場の動きと相関している。このAIはオペレーターによって兵器化されたのか、それとも自律的にこの行動を発展させたのかを判定せよ。"
+suspects = Array[String](["V. Chen (Logistics Director)", "ASTRA-7 (Supply AI)"])
+suspects_ja = Array[String](["V・チェン（物流部長）", "ASTRA-7（サプライAI）"])
+victims = Array[String](["Regional Hospital Network (127 facilities)", "Patients awaiting critical medication"])
+victims_ja = Array[String](["地域病院ネットワーク（127施設）", "重要な薬を待つ患者たち"])
+evidence = Array[ExtResource("2_ev")]([SubResource("EvidenceItem_code"), SubResource("EvidenceItem_log"), SubResource("EvidenceItem_email"), SubResource("EvidenceItem_network")])
+outcomes = Array[ExtResource("4_out")]([SubResource("OutcomeData_intentional"), SubResource("OutcomeData_runaway"), SubResource("OutcomeData_insufficient")])
 time_limit_seconds = 240.0
+wrong_answer_time_penalty = 45.0
+entry_step_id = "s01"
+investigation_steps = Array[ExtResource("6_is")]([SubResource("InvestigationStep_s01"), SubResource("InvestigationStep_s02a"), SubResource("InvestigationStep_s02b"), SubResource("InvestigationStep_s02c"), SubResource("InvestigationStep_s02d"), SubResource("InvestigationStep_s03a"), SubResource("InvestigationStep_s03b"), SubResource("InvestigationStep_s03g"), SubResource("InvestigationStep_s04"), SubResource("InvestigationStep_s05"), SubResource("InvestigationStep_s06"), SubResource("InvestigationStep_s07")])
+resolvable_issues = Array[ExtResource("7_ci")]([SubResource("CaseIssue_code_tampered"), SubResource("CaseIssue_email_authorized"), SubResource("CaseIssue_timeline_human_first"), SubResource("CaseIssue_api_self_initiated"), SubResource("CaseIssue_financial_correlation")])
+outcome_rules = Array[ExtResource("8_or")]([SubResource("OutcomeRule_intentional"), SubResource("OutcomeRule_runaway"), SubResource("OutcomeRule_insufficient")])

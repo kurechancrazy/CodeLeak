@@ -48,6 +48,7 @@ Quick Fix / Full Spec のどちらを使うかをユーザーに宣言する。
 
 | 触れるファイル / 実装内容 | 実装前に読むドキュメント |
 |------------------------|----------------------|
+| **画面操作・ゲームフローを変更する（`scenes/ui/` / `autoloads/case_manager.gd` / `autoloads/game_manager.gd`）** | **実装後に `docs/manual/how-to-play.md` を更新すること（操作が変わった箇所を反映し、末尾の更新日を書き換える）** |
 | `scenes/` 以下を作成・変更する | `docs/core/scene-design.md` |
 | `autoloads/` を変更する | `docs/core/startup.md`, `docs/core/state-management.md` |
 | UIシーン（Control派生）を作成する | `docs/ui/scene-patterns.md`, `docs/ui/scene-principles.md`, `docs/styling/ux-standards.md` |

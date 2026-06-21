@@ -1,10 +1,10 @@
 ## CaseSelectScreen — ケース選択画面
 extends MarginContainer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
-const _COLOR_DIM: Color = Color.html("#555555")
-const _COLOR_LOCK: Color = Color.html("#333333")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_DIM: Color = Color.html("#555555")
+var _COLOR_LOCK: Color = Color.html("#333333")
 
 var _scroll: ScrollContainer
 var _vbox: VBoxContainer

@@ -1,10 +1,11 @@
 ## OutcomeScreen — 結末ナラティブ・コレクショントラッカー・シェア
 extends MarginContainer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
-const _COLOR_DIM: Color = Color.html("#555555")
 const _TYPEWRITER_SPEED: float = 0.025
+
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_DIM: Color = Color.html("#555555")
 
 var _narrative_label: Label
 var _share_label: Label
@@ -58,22 +59,22 @@ func _build_layout(case_data: CaseData, verdict_key: String) -> void:
 	title.add_theme_font_size_override("font_size", 32)
 	outer_vbox.add_child(title)
 
-	# Verdict label
-	var verdict_choice: VerdictChoice = null
-	for vc: VerdictChoice in case_data.verdict_choices:
-		if vc.outcome_key == verdict_key:
-			verdict_choice = vc
-	var verdict_label_text: String = verdict_key
-	if verdict_choice != null:
-		verdict_label_text = verdict_choice.get_label()
-	elif verdict_key == "insufficient":
-		verdict_label_text = tr("VERDICT_INSUFFICIENT")
+	# ISSUES RESOLVED / スコア表示
+	var resolved_count: int = CaseManager.resolved_issue_ids.size()
+	var total_issues: int = case_data.resolvable_issues.size()
+	var verdict_label_text: String = "%d / %d" % [resolved_count, total_issues]
 
 	var verdict_row: Label = Label.new()
-	verdict_row.text = "%s %s" % [tr("OUTCOME_YOUR_VERDICT"), verdict_label_text.to_upper()]
+	verdict_row.text = "ISSUES RESOLVED: %s" % verdict_label_text
 	verdict_row.add_theme_color_override("font_color", _COLOR_DIM)
 	verdict_row.add_theme_font_size_override("font_size", 18)
 	outer_vbox.add_child(verdict_row)
+
+	var score_row: Label = Label.new()
+	score_row.text = tr("OUTCOME_SCORE") % CaseManager.total_points
+	score_row.add_theme_color_override("font_color", _COLOR_TEXT)
+	score_row.add_theme_font_size_override("font_size", 18)
+	outer_vbox.add_child(score_row)
 
 	var sep: HSeparator = HSeparator.new()
 	outer_vbox.add_child(sep)
@@ -203,7 +204,11 @@ func _input(event: InputEvent) -> void:
 		return
 	var is_skip: bool = (
 		event is InputEventMouseButton and (event as InputEventMouseButton).pressed
-		or event is InputEventKey and (event as InputEventKey).pressed and not (event as InputEventKey).echo
+		or (
+			event is InputEventKey
+			and (event as InputEventKey).pressed
+			and not (event as InputEventKey).echo
+		)
 	)
 	if is_skip:
 		_typewriter_active = false

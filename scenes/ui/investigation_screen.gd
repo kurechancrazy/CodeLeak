@@ -1,23 +1,36 @@
-## InvestigationScreen — 証拠調査・カウントダウン画面（ポーズ内蔵）
+## InvestigationScreen — 証拠調査・分岐推理チェーン画面（ポーズ内蔵）
 extends MarginContainer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
-const _COLOR_DIM: Color = Color.html("#555555")
-const _COLOR_READ: Color = Color.html("#336633")
-const _COLOR_WARN: Color = Color.html("#ffff00")
-const _COLOR_DANGER: Color = Color.html("#ff4444")
 const _MONO_FONT_SIZE: int = 14
 const _BODY_FONT_SIZE: int = 16
+
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_DIM: Color = Color.html("#555555")
+var _COLOR_READ: Color = Color.html("#336633")
+var _COLOR_WARN: Color = Color.html("#ffff00")
+var _COLOR_DANGER: Color = Color.html("#ff4444")
 
 var _countdown_label: Label
 var _evidence_buttons: Array[Button] = []
 var _content_label: Label
-var _verdict_btn: Button
 var _selected_index: int = -1
 var _time_expired_overlay: CanvasLayer
 var _pause_overlay: CanvasLayer
 var _is_paused: bool = false
+
+var _step_container: VBoxContainer
+var _evidence_container: VBoxContainer
+var _step_choice_buttons: Array[Button] = []
+var _step_question_label: Label
+var _step_type_label: Label
+var _step_indicator_label: Label
+var _input_locked: bool = false
+var _step_count: int = 0
+var _displayed_evidence_ids: Dictionary = {}
+var _cite_button: Button
+var _citation_prompt_label: Label
+var _citation_animating: bool = false
 
 
 func _ready() -> void:
@@ -26,8 +39,12 @@ func _ready() -> void:
 		return
 	GameManager.transition_to(GameManager.GameState.INVESTIGATING)
 	EventBus.countdown_updated.connect(_on_countdown_updated)
-	EventBus.verdict_submitted.connect(_on_verdict_submitted)
 	EventBus.settings_changed.connect(_on_settings_changed)
+	EventBus.step_arrived.connect(_on_step_arrived)
+	EventBus.investigation_chain_complete.connect(_on_chain_complete)
+	EventBus.evidence_unlocked.connect(_on_evidence_unlocked)
+	EventBus.evidence_cited_correctly.connect(_on_evidence_cited_correctly)
+	EventBus.evidence_cited_wrongly.connect(_on_evidence_cited_wrongly)
 	_build_layout()
 	_build_time_expired_overlay()
 	_build_pause_overlay()
@@ -49,10 +66,10 @@ func _build_layout() -> void:
 	add_child(margin)
 
 	var outer_vbox: VBoxContainer = VBoxContainer.new()
-	outer_vbox.add_theme_constant_override("separation", 12)
+	outer_vbox.add_theme_constant_override("separation", 10)
 	margin.add_child(outer_vbox)
 
-	# Countdown row
+	# タイマー行
 	var timer_hbox: HBoxContainer = HBoxContainer.new()
 	outer_vbox.add_child(timer_hbox)
 
@@ -63,67 +80,147 @@ func _build_layout() -> void:
 	_countdown_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	timer_hbox.add_child(_countdown_label)
 
-	# Main content HBox
+	_step_indicator_label = Label.new()
+	_step_indicator_label.text = "STEP 0"
+	_step_indicator_label.add_theme_color_override("font_color", _COLOR_DIM)
+	_step_indicator_label.add_theme_font_size_override("font_size", 20)
+	_step_indicator_label.size_flags_horizontal = Control.SIZE_SHRINK_END
+	timer_hbox.add_child(_step_indicator_label)
+
+	var top_sep: HSeparator = HSeparator.new()
+	outer_vbox.add_child(top_sep)
+
+	# メインコンテンツ（左：質問、右：証拠）
 	var content_hbox: HBoxContainer = HBoxContainer.new()
-	content_hbox.add_theme_constant_override("separation", 20)
+	content_hbox.add_theme_constant_override("separation", 24)
 	content_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	outer_vbox.add_child(content_hbox)
 
-	# Left: evidence list
-	var left_vbox: VBoxContainer = VBoxContainer.new()
-	left_vbox.add_theme_constant_override("separation", 8)
-	left_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_vbox.size_flags_stretch_ratio = 1.0
-	content_hbox.add_child(left_vbox)
+	# --- 左: 質問パネル（主役・幅 2/3）---
+	_step_container = VBoxContainer.new()
+	_step_container.add_theme_constant_override("separation", 10)
+	_step_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_step_container.size_flags_stretch_ratio = 2.0
+	_step_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_hbox.add_child(_step_container)
+
+	_step_type_label = Label.new()
+	_step_type_label.add_theme_color_override("font_color", _COLOR_DIM)
+	_step_type_label.add_theme_font_size_override("font_size", 13)
+	_step_container.add_child(_step_type_label)
+
+	_step_question_label = Label.new()
+	_step_question_label.add_theme_color_override("font_color", _COLOR_TEXT)
+	_step_question_label.add_theme_font_size_override("font_size", 16)
+	_step_question_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_step_question_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_step_container.add_child(_step_question_label)
+
+	var sep_q: HSeparator = HSeparator.new()
+	_step_container.add_child(sep_q)
+
+	# --- 右: 証拠パネル（参照用・幅 1/3）---
+	var right_vbox: VBoxContainer = VBoxContainer.new()
+	right_vbox.add_theme_constant_override("separation", 8)
+	right_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_vbox.size_flags_stretch_ratio = 1.0
+	right_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_hbox.add_child(right_vbox)
 
 	var evidence_title: Label = Label.new()
-	evidence_title.text = "EVIDENCE"
+	evidence_title.text = "── EVIDENCE ──"
 	evidence_title.add_theme_color_override("font_color", _COLOR_DIM)
-	evidence_title.add_theme_font_size_override("font_size", 14)
-	left_vbox.add_child(evidence_title)
+	evidence_title.add_theme_font_size_override("font_size", 13)
+	right_vbox.add_child(evidence_title)
+
+	_evidence_container = VBoxContainer.new()
+	_evidence_container.add_theme_constant_override("separation", 6)
+	right_vbox.add_child(_evidence_container)
 
 	_evidence_buttons.clear()
-	if CaseManager.current_case != null:
-		var idx: int = 0
-		for evidence: EvidenceItem in CaseManager.current_case.evidence:
-			var btn: Button = Button.new()
-			btn.flat = true
-			btn.text = evidence.get_title()
-			btn.add_theme_color_override("font_color", _COLOR_TEXT)
-			btn.add_theme_font_size_override("font_size", 16)
-			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			btn.pressed.connect(_on_evidence_selected.bind(idx))
-			left_vbox.add_child(btn)
-			_evidence_buttons.append(btn)
-			idx += 1
+	_displayed_evidence_ids.clear()
 
-	# Right: content panel
-	var right_scroll: ScrollContainer = ScrollContainer.new()
-	right_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_scroll.size_flags_stretch_ratio = 2.0
-	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content_hbox.add_child(right_scroll)
+	var ev_sep: HSeparator = HSeparator.new()
+	right_vbox.add_child(ev_sep)
+
+	# 証拠コンテンツスクロール
+	var evidence_scroll: ScrollContainer = ScrollContainer.new()
+	evidence_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_vbox.add_child(evidence_scroll)
 
 	_content_label = Label.new()
 	_content_label.add_theme_color_override("font_color", _COLOR_TEXT)
 	_content_label.add_theme_font_size_override("font_size", _BODY_FONT_SIZE)
 	_content_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	right_scroll.add_child(_content_label)
+	evidence_scroll.add_child(_content_label)
 
-	# Verdict button
-	_verdict_btn = Button.new()
-	_verdict_btn.flat = true
-	_verdict_btn.custom_minimum_size = Vector2(300, 52)
-	_verdict_btn.add_theme_color_override("font_color", _COLOR_TEXT)
-	_verdict_btn.add_theme_font_size_override("font_size", 20)
-	_verdict_btn.pressed.connect(_on_deliver_verdict)
-	outer_vbox.add_child(_verdict_btn)
-	_refresh_verdict_btn()
+	_citation_prompt_label = Label.new()
+	_citation_prompt_label.add_theme_color_override("font_color", _COLOR_WARN)
+	_citation_prompt_label.add_theme_font_size_override("font_size", 14)
+	_citation_prompt_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_citation_prompt_label.visible = false
+	right_vbox.add_child(_citation_prompt_label)
 
-	# Focus first evidence button
-	if not _evidence_buttons.is_empty():
-		_evidence_buttons[0].grab_focus()
+	_cite_button = Button.new()
+	_cite_button.flat = true
+	_cite_button.add_theme_color_override("font_color", _COLOR_TEXT)
+	_cite_button.add_theme_font_size_override("font_size", 15)
+	_cite_button.visible = false
+	_cite_button.pressed.connect(_on_cite_evidence_pressed)
+	right_vbox.add_child(_cite_button)
+
+	# 初期ステップ表示（start_case() 呼び出し前に current_step_id が設定済みの場合）
+	var initial_step: InvestigationStep = null
+	if CaseManager.current_case != null:
+		initial_step = CaseManager.current_case.get_step_by_id(CaseManager.current_step_id)
+	if initial_step != null:
+		_step_indicator_label.text = "STEP 1"
+		_step_count = 1
+		_build_step_panel(initial_step)
+
+
+func _update_citation_ui() -> void:
+	var awaiting: bool = CaseManager.is_awaiting_citation()
+	_citation_prompt_label.text = tr("CITE_EVIDENCE_PROMPT")
+	_citation_prompt_label.visible = awaiting
+	_cite_button.text = tr("CITE_EVIDENCE_BTN")
+	_cite_button.visible = awaiting and _selected_index >= 0
+	_input_locked = awaiting
+	for btn: Button in _step_choice_buttons:
+		btn.modulate.a = 0.4 if awaiting else 1.0
+
+
+func _build_step_panel(step: InvestigationStep) -> void:
+	_step_choice_buttons.clear()
+	for child: Node in _step_container.get_children():
+		if child is Button:
+			child.queue_free()
+
+	_step_type_label.text = "[ %s ]" % step.question_type
+	_step_question_label.text = step.get_question()
+	if step.display_as_code:
+		_step_question_label.add_theme_font_size_override("font_size", _MONO_FONT_SIZE)
+	else:
+		_step_question_label.add_theme_font_size_override("font_size", 16)
+
+	var letter_labels: Array[String] = ["A", "B", "C", "D", "E", "F", "G"]
+	for i: int in range(step.choices.size()):
+		var choice: StepChoice = step.choices[i]
+		var prefix: String = letter_labels[i] if i < letter_labels.size() else str(i + 1)
+		var btn: Button = Button.new()
+		btn.text = "%s.  %s" % [prefix, choice.get_label()]
+		btn.flat = true
+		btn.custom_minimum_size = Vector2(0, 38)
+		btn.add_theme_color_override("font_color", _COLOR_TEXT)
+		btn.add_theme_font_size_override("font_size", 15)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.pressed.connect(_on_step_choice_selected.bind(choice.choice_key))
+		_step_container.add_child(btn)
+		_step_choice_buttons.append(btn)
+
+	if not _step_choice_buttons.is_empty():
+		_step_choice_buttons[0].grab_focus()
 
 
 func _build_time_expired_overlay() -> void:
@@ -215,6 +312,55 @@ func _build_pause_overlay() -> void:
 	vbox.add_child(abandon_btn)
 
 
+func _on_step_choice_selected(choice_key: String) -> void:
+	if _input_locked:
+		return
+	_input_locked = true
+	for btn: Button in _step_choice_buttons:
+		btn.disabled = true
+	CaseManager.answer_step(choice_key)
+	# _input_locked は _on_step_arrived または _on_chain_complete で解除
+
+
+func _on_step_arrived(step_id: String) -> void:
+	_step_count += 1
+	_step_indicator_label.text = "STEP %d" % _step_count
+	var step: InvestigationStep = CaseManager.current_case.get_step_by_id(step_id)
+	if step != null:
+		_build_step_panel(step)
+	_selected_index = -1
+	_update_citation_ui()
+
+
+func _on_chain_complete(_resolved_issue_ids: Array) -> void:
+	# チェーン完了 → ChainReviewScreen へ遷移
+	EventBus.scene_change_requested.emit("res://scenes/ui/chain_review_screen.tscn", "fade")
+
+
+func _on_evidence_unlocked(evidence_id: String) -> void:
+	if CaseManager.current_case == null:
+		return
+	if _displayed_evidence_ids.has(evidence_id):
+		return
+	_displayed_evidence_ids[evidence_id] = true
+	for evidence: EvidenceItem in CaseManager.current_case.evidence:
+		if evidence.evidence_id == evidence_id:
+			_add_evidence_button(evidence, CaseManager.current_case.evidence.find(evidence))
+			return
+
+
+func _add_evidence_button(evidence: EvidenceItem, idx: int) -> void:
+	var btn: Button = Button.new()
+	btn.flat = true
+	btn.text = evidence.get_title()
+	btn.add_theme_color_override("font_color", _COLOR_TEXT)
+	btn.add_theme_font_size_override("font_size", 16)
+	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	btn.pressed.connect(_on_evidence_selected.bind(idx))
+	_evidence_container.add_child(btn)
+	_evidence_buttons.append(btn)
+
+
 func _on_evidence_selected(index: int) -> void:
 	if CaseManager.current_case == null:
 		return
@@ -223,6 +369,8 @@ func _on_evidence_selected(index: int) -> void:
 	CaseManager.mark_evidence_read(evidence.evidence_id)
 	_refresh_evidence_list()
 	_display_evidence(evidence)
+	if CaseManager.is_awaiting_citation():
+		_cite_button.visible = true
 
 
 func _display_evidence(evidence: EvidenceItem) -> void:
@@ -259,12 +407,44 @@ func _refresh_evidence_list() -> void:
 			btn.add_theme_color_override("font_color", _COLOR_TEXT)
 
 
-func _refresh_verdict_btn() -> void:
-	var unread_count: int = CaseManager.get_unread_evidence().size()
-	if unread_count > 0:
-		_verdict_btn.text = "%s  [%d %s]" % [tr("BTN_DELIVER_VERDICT"), unread_count, tr("UNREAD_COUNT_SUFFIX")]
-	else:
-		_verdict_btn.text = tr("BTN_DELIVER_VERDICT")
+func _on_cite_evidence_pressed() -> void:
+	if _selected_index < 0 or _citation_animating or CaseManager.current_case == null:
+		return
+	var evidence: EvidenceItem = CaseManager.current_case.evidence[_selected_index]
+	CaseManager.cite_evidence(evidence.evidence_id)
+
+
+func _on_evidence_cited_correctly(_step_id: String, evidence_id: String) -> void:
+	if CaseManager.current_case == null:
+		return
+	for i: int in range(CaseManager.current_case.evidence.size()):
+		if CaseManager.current_case.evidence[i].evidence_id == evidence_id:
+			if i < _evidence_buttons.size():
+				_evidence_buttons[i].add_theme_color_override("font_color", Color.html("#66ff66"))
+	_cite_button.visible = false
+	_citation_prompt_label.visible = false
+	_update_citation_ui()
+	if not _step_choice_buttons.is_empty():
+		_step_choice_buttons[0].grab_focus()
+
+
+func _on_evidence_cited_wrongly(_step_id: String, evidence_id: String) -> void:
+	if CaseManager.current_case == null:
+		return
+	for i: int in range(CaseManager.current_case.evidence.size()):
+		if CaseManager.current_case.evidence[i].evidence_id == evidence_id:
+			if i < _evidence_buttons.size():
+				var btn: Button = _evidence_buttons[i]
+				_citation_animating = true
+				btn.add_theme_color_override("font_color", _COLOR_DANGER)
+				var tween: Tween = create_tween()
+				tween.tween_interval(0.35)
+				tween.tween_callback(
+					func() -> void:
+						btn.add_theme_color_override("font_color", _COLOR_TEXT)
+						_citation_animating = false
+				)
+			return
 
 
 func _on_countdown_updated(remaining: float) -> void:
@@ -295,18 +475,6 @@ func _on_countdown_updated(remaining: float) -> void:
 		_countdown_label.add_theme_color_override("font_color", _COLOR_TEXT)
 
 	_countdown_label.text = "%s%02d:%02d" % [prefix, mins, secs]
-	_refresh_verdict_btn()
-
-
-func _on_verdict_submitted(outcome_key: String) -> void:
-	if outcome_key == "insufficient":
-		_time_expired_overlay.visible = true
-		_verdict_btn.disabled = true
-
-
-func _on_deliver_verdict() -> void:
-	CaseManager.stop_timer()
-	EventBus.scene_change_requested.emit("res://scenes/ui/verdict_screen.tscn", "fade")
 
 
 func _go_to_outcome() -> void:
@@ -325,16 +493,19 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	# Evidence keyboard nav
+	# Evidence keyboard nav — 証拠ボタンにフォーカスがある場合のみ動作
 	if not _evidence_buttons.is_empty():
-		if event.is_action_pressed("move_up"):
-			var new_idx: int = max(0, _selected_index - 1)
-			_evidence_buttons[new_idx].grab_focus()
-			get_viewport().set_input_as_handled()
-		elif event.is_action_pressed("move_down"):
-			var new_idx: int = min(_evidence_buttons.size() - 1, _selected_index + 1)
-			_evidence_buttons[new_idx].grab_focus()
-			get_viewport().set_input_as_handled()
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		var focused_idx: int = _evidence_buttons.find(focused as Button)
+		if focused_idx >= 0:
+			if event.is_action_pressed("move_up"):
+				var new_idx: int = max(0, focused_idx - 1)
+				_evidence_buttons[new_idx].grab_focus()
+				get_viewport().set_input_as_handled()
+			elif event.is_action_pressed("move_down"):
+				var new_idx: int = min(_evidence_buttons.size() - 1, focused_idx + 1)
+				_evidence_buttons[new_idx].grab_focus()
+				get_viewport().set_input_as_handled()
 
 
 func _toggle_pause() -> void:
@@ -358,7 +529,6 @@ func _on_settings_changed(key: String, _value: Variant) -> void:
 		return
 	# Refresh labels without rebuilding (preserve read/selected state)
 	_refresh_evidence_list()
-	_refresh_verdict_btn()
 	if CaseManager.current_case != null and _selected_index >= 0:
 		var evidence: EvidenceItem = CaseManager.current_case.evidence[_selected_index]
 		_display_evidence(evidence)
@@ -367,10 +537,18 @@ func _on_settings_changed(key: String, _value: Variant) -> void:
 func _exit_tree() -> void:
 	if EventBus.countdown_updated.is_connected(_on_countdown_updated):
 		EventBus.countdown_updated.disconnect(_on_countdown_updated)
-	if EventBus.verdict_submitted.is_connected(_on_verdict_submitted):
-		EventBus.verdict_submitted.disconnect(_on_verdict_submitted)
 	if EventBus.settings_changed.is_connected(_on_settings_changed):
 		EventBus.settings_changed.disconnect(_on_settings_changed)
+	if EventBus.step_arrived.is_connected(_on_step_arrived):
+		EventBus.step_arrived.disconnect(_on_step_arrived)
+	if EventBus.investigation_chain_complete.is_connected(_on_chain_complete):
+		EventBus.investigation_chain_complete.disconnect(_on_chain_complete)
+	if EventBus.evidence_unlocked.is_connected(_on_evidence_unlocked):
+		EventBus.evidence_unlocked.disconnect(_on_evidence_unlocked)
+	if EventBus.evidence_cited_correctly.is_connected(_on_evidence_cited_correctly):
+		EventBus.evidence_cited_correctly.disconnect(_on_evidence_cited_correctly)
+	if EventBus.evidence_cited_wrongly.is_connected(_on_evidence_cited_wrongly):
+		EventBus.evidence_cited_wrongly.disconnect(_on_evidence_cited_wrongly)
 	# Ensure unpause if we navigate away while paused
 	if _is_paused:
 		EventBus.game_paused.emit(false)

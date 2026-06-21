@@ -12,9 +12,13 @@ extends Resource
 @export var victims: Array[String] = []
 @export var victims_ja: Array[String] = []
 @export var evidence: Array[EvidenceItem] = []
-@export var verdict_choices: Array[VerdictChoice] = []
 @export var outcomes: Array[OutcomeData] = []
 @export var time_limit_seconds: float = 240.0
+@export var wrong_answer_time_penalty: float = 45.0
+@export var entry_step_id: String = ""
+@export var investigation_steps: Array[InvestigationStep] = []
+@export var resolvable_issues: Array[CaseIssue] = []
+@export var outcome_rules: Array[OutcomeRule] = []
 
 func get_ai_name() -> String:
 	if TranslationServer.get_locale().begins_with("ja") and not ai_name_ja.is_empty():
@@ -42,38 +46,50 @@ func get_outcome(key: String) -> OutcomeData:
 			return o
 	return null
 
+func get_step_by_id(step_id: String) -> InvestigationStep:
+	for step: InvestigationStep in investigation_steps:
+		if step.step_id == step_id:
+			return step
+	return null
+
+
+func get_issue_by_id(issue_id: String) -> CaseIssue:
+	for issue: CaseIssue in resolvable_issues:
+		if issue.issue_id == issue_id:
+			return issue
+	return null
+
 func validate() -> Array[String]:
 	var errors: Array[String] = []
 
-	if evidence.size() != 4:
-		errors.append("evidence count must be 4, got %d" % evidence.size())
+	# 1. entry_step_id
+	if entry_step_id.is_empty():
+		errors.append("entry_step_id must not be empty")
+	else:
+		var found_entry: bool = false
+		for step: InvestigationStep in investigation_steps:
+			if step.step_id == entry_step_id:
+				found_entry = true
+				break
+		if not found_entry:
+			errors.append("entry_step_id '%s' not found in investigation_steps" % entry_step_id)
 
-	var required_types: Array[String] = ["CODE", "LOG", "EMAIL", "NETWORK"]
-	var found_types: Array[String] = []
-	for e: EvidenceItem in evidence:
-		if e.type not in found_types:
-			found_types.append(e.type)
-	for t: String in required_types:
-		if t not in found_types:
-			errors.append("missing evidence type: %s" % t)
+	# 2. 全ステップの choices が7件
+	for step: InvestigationStep in investigation_steps:
+		var step_errors: Array[String] = step.validate()
+		for e: String in step_errors:
+			errors.append("step '%s': %s" % [step.step_id, e])
 
-	if verdict_choices.is_empty():
-		errors.append("verdict_choices must not be empty")
-
-	var expected_keys: Array[String] = ["insufficient"]
-	for vc: VerdictChoice in verdict_choices:
-		if vc.outcome_key not in expected_keys:
-			expected_keys.append(vc.outcome_key)
-
-	var found_keys: Array[String] = []
+	# 3. 全 outcome_rules の outcome_key が outcomes に存在する
+	var outcome_keys: Array[String] = []
 	for o: OutcomeData in outcomes:
-		if o.outcome_key in found_keys:
-			errors.append("duplicate outcome_key: %s" % o.outcome_key)
-		else:
-			found_keys.append(o.outcome_key)
+		outcome_keys.append(o.outcome_key)
+	for rule: OutcomeRule in outcome_rules:
+		if rule.outcome_key not in outcome_keys:
+			errors.append("outcome_rule references missing outcome_key: %s" % rule.outcome_key)
 
-	for k: String in expected_keys:
-		if k not in found_keys:
-			errors.append("missing outcome for key: %s" % k)
+	# 4. "insufficient" アウトカムが存在する
+	if "insufficient" not in outcome_keys:
+		errors.append("missing outcome for key: insufficient")
 
 	return errors

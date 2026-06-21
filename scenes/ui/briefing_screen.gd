@@ -1,10 +1,10 @@
 ## BriefingScreen — ミッションブリーフィング画面
 extends MarginContainer
 
-const _COLOR_TEXT: Color = Color.html("#00ff41")
-const _COLOR_BG: Color = Color.html("#0d0d0d")
-const _COLOR_DIM: Color = Color.html("#555555")
-const _COLOR_WARN: Color = Color.html("#ffff00")
+var _COLOR_TEXT: Color = Color.html("#00ff41")
+var _COLOR_BG: Color = Color.html("#0d0d0d")
+var _COLOR_DIM: Color = Color.html("#555555")
+var _COLOR_WARN: Color = Color.html("#ffff00")
 const _TYPEWRITER_SPEED: float = 0.03  # seconds per character
 
 var _briefing_label: Label
